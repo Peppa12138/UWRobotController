@@ -36,7 +36,12 @@ const DirectionPad = ({ onPress }) => {
 
 const styles = StyleSheet.create({
   directionPad: {
-    alignItems: 'center',
+    // alignItems: 'center',
+    alignItems: 'flex-start', // 横屏时靠左显示
+    justifyContent: 'flex-end', // 横屏时靠下显示
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
   },
   button: {
     justifyContent: 'center',
