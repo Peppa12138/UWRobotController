@@ -1,78 +1,28 @@
-// /**
-//  * Sample React Native App
-//  * https://github.com/facebook/react-native
-//  *
-//  * @format
-//  */
-
-// import React from 'react';
-// import { PropsWithChildren } from 'react';
-// import {
-//   SafeAreaView,
-//   ScrollView,
-//   StatusBar,
-//   StyleSheet,
-//   Text,
-//   useColorScheme,
-//   View,
-// } from 'react-native';
-
-// import {
-//   Colors,
-//   DebugInstructions,
-//   Header,
-//   LearnMoreLinks,
-//   ReloadInstructions,
-// } from 'react-native/Libraries/NewAppScreen';
-
-// function App() {
-//   return (
-//     <View>
-//       <Text>Android 就是个SB</Text>
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   sectionContainer: {
-//     marginTop: 32,
-//     paddingHorizontal: 24,
-//   },
-//   sectionTitle: {
-//     fontSize: 24,
-//     fontWeight: '600',
-//   },
-//   sectionDescription: {
-//     marginTop: 8,
-//     fontSize: 18,
-//     fontWeight: '400',
-//   },
-//   highlight: {
-//     fontWeight: '700',
-//   },
-// });
-
-// export default App;
-
-
-
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
 import DirectionPad from './components/DirectionPad'; // 引入 DirectionPad 组件
+import FunctionKeys from './components/FunctionKeys'; // 引入 FunctionKeys 组件
+import SettingsButton from './components/SettingButton';
+import StatusView from './components/StatusView';
+import SystemNavigationBar from 'react-native-system-navigation-bar';
 
-function App() {
+const App = () => {
+  SystemNavigationBar.fullScreen(true); // 隐藏系统导航栏
+
   const handleDirectionPress = (direction) => {
     console.log(`Pressed ${direction} button`);
     // 你可以在这里添加处理方向键按下的逻辑
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.content}>
         <DirectionPad onPress={handleDirectionPress} />
+        <FunctionKeys />
+        <StatusView />
+        {/* <SettingsButton /> */}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
