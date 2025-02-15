@@ -11,11 +11,15 @@
   },
   "dependencies": {
     "@ant-design/react-native": "^5.3.2",
+    "@react-navigation/native": "^7.0.14",
+    "@react-navigation/stack": "^7.1.1",
     "antd-mobile": "^5.38.1",
     "antd-mobile-icons": "^0.3.0",
     "react": "18.3.1",
     "react-native": "0.76.6",
+    "react-native-gesture-handler": "^2.23.1",
     "react-native-orientation-locker": "^1.7.0",
+    "react-native-reanimated": "^3.16.7",
     "react-native-safe-area-context": "^5.2.0",
     "react-native-system-navigation-bar": "^2.6.4"
   },
