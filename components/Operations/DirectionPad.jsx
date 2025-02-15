@@ -36,20 +36,16 @@ const DirectionPad = ({ onPress }) => {
 
 const styles = StyleSheet.create({
   directionPad: {
-    // alignItems: 'center',
-    alignItems: 'flex-start', // 横屏时靠左显示
-    justifyContent: 'flex-end', // 横屏时靠下显示
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
+    alignItems: 'center',
+    marginTop: -150, // 将整个方向键往上移动
   },
   button: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: 80,  // 调整宽度，使按钮更长
-    height: 40, // 调整高度，形成长方形
+    width: 60, 
+    height: 30, 
     backgroundColor: '#007bff',
-    margin: 10,
+    margin: 5,
   },
   buttonText: {
     color: '#fff',
