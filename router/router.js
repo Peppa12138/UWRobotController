@@ -7,6 +7,8 @@ import LoginScreen from '../components/InitialScreen/LoginScreen';
 import RegisterScreen from '../components/InitialScreen/RegisterScreen';
 import OperationScreen from '../OperationScreen/OperationScreen';
 import PreLoginScreen from '../components/PreLogin/PreLogin';
+import SettingsPage from '../components/settingPage/SettingsPage'; // 导入设置页面
+
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -21,6 +23,7 @@ const App = () => {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="OperationScreen" component={OperationScreen} />
+      <Stack.Screen name="Settings" component={SettingsPage} /> 
     </Stack.Navigator>
   );
 };

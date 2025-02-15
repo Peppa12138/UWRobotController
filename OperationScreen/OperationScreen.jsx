@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // 导航钩子
 import DirectionPad from '../components/Operations/DirectionPad';
 import FunctionKeys from '../components/Operations/FunctionKeys';
 import SettingsButton from '../components/Operations/SettingButton';
@@ -8,6 +9,12 @@ import SystemNavigationBar from 'react-native-system-navigation-bar';
 
 const ControlPanel = () => {
   SystemNavigationBar.fullScreen(true); // 隐藏系统导航栏
+
+  const navigation = useNavigation(); // 获取导航实例
+
+  const handleSettingsPress = () => {
+    navigation.navigate('Settings'); // 跳转到设置页面
+  };
 
   const handleDirectionPress = direction => {
     console.log(`Pressed ${direction} button`);
@@ -27,7 +34,7 @@ const ControlPanel = () => {
       </View>
 
       {/* 设置按钮 */}
-      <SettingsButton />
+      <SettingsButton onPress={handleSettingsPress} />
 
       {/* 状态视图始终显示 */}
       <StatusView />
