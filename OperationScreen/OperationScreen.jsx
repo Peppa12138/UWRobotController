@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
-import {View, StyleSheet} from 'react-native';
-import DirectionPad from '../components/DirectionPad';
-import FunctionKeys from '../components/FunctionKeys';
-import SettingsButton from '../components/SettingButton';
-import StatusView from '../components/StatusView';
+import React, { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
+import DirectionPad from '../components/Operations/DirectionPad';
+import FunctionKeys from '../components/Operations/FunctionKeys';
+import SettingsButton from '../components/Operations/SettingButton';
+import StatusView from '../components/Operations/StatusView';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 
 const Otherindex = () => {

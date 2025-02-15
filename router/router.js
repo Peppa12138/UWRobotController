@@ -1,15 +1,11 @@
-import React, {useState} from 'react';
-import {View, StyleSheet} from 'react-native';
-// import DirectionPad from './components/DirectionPad';
-// import FunctionKeys from './components/FunctionKeys';
-// import SettingsButton from './components/SettingButton';
-// import StatusView from './components/StatusView';
+import React, { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
-import LoginScreen from '../components/LoginScreen';
-import RegisterScreen from '../components/RegisterScreen';
-
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import LoginScreen from '../components/InitialScreen/LoginScreen';
+import RegisterScreen from '../components/InitialScreen/RegisterScreen';
+import OperationScreen from '../OperationScreen/OperationScreen';
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -18,6 +14,7 @@ const App = () => {
     <Stack.Navigator initialRouteName="Login">
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="OperationScreen" component={OperationScreen} />
     </Stack.Navigator>
   );
 };
