@@ -1,4 +1,3 @@
-// StatusView.js
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
@@ -19,15 +18,18 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 20,
         left: 20,
-        padding: 10,
-        backgroundColor: 'rgba(255, 255, 255, 0.5)', // 半透明背景
-        borderRadius: 10,
+        padding: 5, // 减小内边距
+        backgroundColor: '#f5f5f5',
+        borderRadius: 5, // 减小圆角大小
         zIndex: 10,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2, // 减小阴影半径
     },
     statusText: {
-        fontSize: 18,
+        fontSize: 14, // 减小字体大小
         color: '#000',
-        marginBottom: 5,
+        marginBottom: 3, // 减小行间距
     },
 });
 
