@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     },
     skillButtonRight: {
         position: 'absolute',
-        bottom: 80,
+        bottom: 100,
         right: 0, // 调整位置
     },
     buttonText: {
