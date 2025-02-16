@@ -1,16 +1,23 @@
 // PreLoginScreen.js
 import React from 'react';
-import { View, Image, StyleSheet, Dimensions, StatusBar, Text, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // 导航钩子
-
+import {
+  View,
+  Image,
+  StyleSheet,
+  Dimensions,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native'; // 导航钩子
+const {width, height} = Dimensions.get('window');
 const PreLoginScreen = () => {
   const navigation = useNavigation(); // 获取导航实例
-  const { width, height } = Dimensions.get('window');
+  let heights = height + 1; //解决底部白边
 
   const handlePress = () => {
     navigation.navigate('Login'); // 跳转到登录页面
     console.log(111);
-    
   };
 
   return (
@@ -19,7 +26,7 @@ const PreLoginScreen = () => {
       <StatusBar hidden={true} />
       <Image
         source={require('./bgi.jpg')} // 替换为实际的背景图片链接
-        style={[styles.backgroundImage, { width, height }]}
+        style={[styles.backgroundImage, {width, heights}]}
         resizeMode="cover"
       />
 
@@ -45,8 +52,9 @@ const PreLoginScreen = () => {
         <Text style={styles.bottomText}>请先登录后进入</Text>
       </View>
       {/* 点击任意位置跳转 */}
-      <TouchableOpacity onPress={handlePress} style={styles.overlay}>
-      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={handlePress}
+        style={styles.overlay}></TouchableOpacity>
     </View>
   );
 };
@@ -68,7 +76,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{ translateX: -295 }, { translateY: -260 }],
+    transform: [{translateX: -295}, {translateY: -260}],
   },
   centerImage: {
     width: 590,
@@ -77,7 +85,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{ translateX: 290 }, { translateY: -170 }],
+    transform: [{translateX: 290}, {translateY: -170}],
   },
   topRightImage: {
     width: 50,
@@ -85,14 +93,14 @@ const styles = StyleSheet.create({
   },
   bottomTextContainer: {
     position: 'absolute',
-    bottom: 100, // 距离底部 100dp
+    bottom: height - 120,
     alignItems: 'center',
   },
   bottomText: {
     fontSize: 21,
     color: '#ffffff', // 字体颜色
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.5,
     shadowRadius: 3,
   },
