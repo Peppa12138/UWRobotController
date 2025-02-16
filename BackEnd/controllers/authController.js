@@ -33,34 +33,42 @@ exports.login = (req, res) => {
     });
 };
 
-// 注册逻辑
+// 注册接口
 exports.register = (req, res) => {
     const { username, password } = req.body;
-    console.log(req.body);
+
+    // 后端验证用户名和密码
+    if (!/^[a-zA-Z0-9_]{5,12}$/.test(username)) {
+        return res.status(400).json({ error: '账号必须由英文、数字或下划线构成，且长度为5~12位' });
+    }
+
+    if (!/^(?=.*[a-zA-Z])(?=.*\d).{8,16}$/.test(password) && !/^(?=.*[a-zA-Z])(?=.*[!]).{8,16}$/.test(password)) {
+        return res.status(400).json({ error: '密码必须包含英文、数字或感叹号中的两种，且长度为8~16位' });
+    }
+
     // 检查用户名是否已存在
-    const checkQuery = 'SELECT * FROM users WHERE username = ?';
-    db.query(checkQuery, [username], (err, results) => {
+    const query = 'SELECT * FROM users WHERE username = ?';
+    db.query(query, [username], (err, results) => {
         if (err) {
             return res.status(500).json({ error: '数据库查询失败' });
         }
+
         if (results.length > 0) {
-            // 如果用户名已存在
-            return res.status(400).json({ error: '用户名已存在，请重新选择' });
+            return res.status(400).json({ error: '用户名已存在' });
         }
 
-        // 对密码进行加密
+        // 加密密码并存入数据库
         bcrypt.hash(password, 10, (err, hashedPassword) => {
             if (err) {
-                // console.log(err);
                 return res.status(500).json({ error: '密码加密失败' });
             }
 
-            // 将用户信息存入数据库
             const insertQuery = 'INSERT INTO users (username, password) VALUES (?, ?)';
             db.query(insertQuery, [username, hashedPassword], (err, results) => {
                 if (err) {
                     return res.status(500).json({ error: '数据库插入失败' });
                 }
+
                 res.status(201).json({ message: '注册成功' });
             });
         });

@@ -6,36 +6,40 @@ const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  // 前端验证账号格式
+  const validateUsername = (username) => {
+    const regex = /^[a-zA-Z0-9_]{5,12}$/; // 只允许英文、数字和下划线，长度为5~12
+    return regex.test(username);
+  };
+
   // 登录逻辑
   const handleLogin = () => {
-    if (username === '' || password === '') {
-      Alert.alert('登录失败', '账号或密码不能为空');
+    // 验证输入账号和密码的合法性
+    if (!validateUsername(username)) {
+      Alert.alert('登录失败', '账号必须由英文、数字或下划线构成，且长度为5~12位');
       return;
     }
 
-    // 使用 axios 向后端发送登录请求
+    if (password === '') {
+      Alert.alert('登录失败', '密码不能为空');
+      return;
+    }
+
+    // 如果合法，发送登录请求
     axios
-      .post('http://10.0.2.2:5000/api/auth/login', {
-        username: username,
-        password: password,
-      })
+      .post('http://10.0.2.2:5000/api/auth/login', { username, password })
       .then((response) => {
-        // 如果登录成功
-        if (response.data.message === '登录成功') {
-          Alert.alert('登录成功', '欢迎回来！');
+        if (response.data.message) {
+          Alert.alert('登录成功', response.data.message);
           navigation.navigate('OperationScreen');
         }
       })
       .catch((error) => {
-        // 如果发生错误（例如用户名或密码错误）
         if (error.response) {
-          // 错误响应：如用户名或密码错误
           Alert.alert('登录失败', error.response.data.error);
         } else if (error.request) {
-          // 请求已发出，但没有收到响应
           Alert.alert('登录失败', '网络错误，请稍后重试');
         } else {
-          // 其他错误
           Alert.alert('登录失败', '发生了未知错误');
         }
       });

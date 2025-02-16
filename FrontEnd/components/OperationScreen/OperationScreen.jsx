@@ -8,7 +8,7 @@ import StatusView from '../Operations/StatusView';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 
 const ControlPanel = () => {
-  SystemNavigationBar.fullScreen(true); // 隐藏系统导航栏
+  // SystemNavigationBar.fullScreen(true); // 隐藏系统导航栏
 
   const navigation = useNavigation(); // 获取导航实例
 

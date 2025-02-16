@@ -5,31 +5,54 @@ import axios from 'axios';
 const RegisterScreen = ({ navigation }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    // 前端验证用户名和密码
+    const validateUsername = (username) => {
+        const regex = /^[a-zA-Z0-9_]{5,12}$/; // 只允许英文、数字和下划线，长度为5~12
+        return regex.test(username);
+    };
 
+    const validatePassword = (password) => {
+        const hasLetter = /[a-zA-Z]/.test(password); // 是否包含字母
+        const hasDigit = /\d/.test(password); // 是否包含数字
+        const hasExclamation = /!/.test(password); // 是否包含感叹号
+        const isValidLength = password.length >= 8 && password.length <= 16; // 长度8~16
+        const isValidType = (hasLetter + hasDigit + hasExclamation) >= 2; // 至少包含两种类型
+        return isValidLength && isValidType;
+    };
+
+    // 注册逻辑
     const handleRegister = () => {
-        // 使用 axios 发送 POST 请求
+        // 验证账号和密码的合法性
+        if (!validateUsername(username)) {
+            Alert.alert('注册失败', '账号必须由英文、数字或下划线构成，且长度为5~12位');
+            return;
+        }
+
+        if (!validatePassword(password)) {
+            Alert.alert('注册失败', '密码必须包含英文、数字或感叹号中的两种，且长度为8~16位');
+            return;
+        }
+
+        // 如果合法，发送注册请求
         axios
             .post('http://10.0.2.2:5000/api/auth/register', {
                 username: username,
                 password: password,
             })
             .then((response) => {
-                // 注册成功后的处理
+                // 注册成功后跳转到登录页面
                 if (response.data.message) {
                     Alert.alert('注册成功', response.data.message);
                     navigation.navigate('Login');
                 }
             })
             .catch((error) => {
-                // 处理错误
+                // 错误处理
                 if (error.response) {
-                    // 请求发出并得到了响应，但响应状态码不是 2xx
                     Alert.alert('注册失败', error.response.data.error);
                 } else if (error.request) {
-                    // 请求已发出，但没有收到响应
                     Alert.alert('注册失败', '网络错误，请稍后重试');
                 } else {
-                    // 其他错误
                     Alert.alert('注册失败', '发生了未知错误');
                 }
             });

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Alert, BackHandler, StyleSheet } from 'react-native';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -13,6 +13,22 @@ const Stack = createStackNavigator();
 
 const App = () => {
   SystemNavigationBar.fullScreen(true); // 隐藏系统导航栏
+
+  useEffect(() => {
+    const backAction = () => {
+      // Alert.alert("返回功能已禁用", "请使用其他方式导航");
+      return true;  // 阻止返回键的默认行为
+    };
+
+    // 添加返回键事件监听器
+    BackHandler.addEventListener("hardwareBackPress", backAction);
+
+    // 清理监听器，防止内存泄漏
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", backAction);
+    };
+  }, []);
+
   return (
     <Stack.Navigator initialRouteName="PreLogin">
       <Stack.Screen
@@ -20,10 +36,26 @@ const App = () => {
         component={PreLoginScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="OperationScreen" component={OperationScreen} />
-      <Stack.Screen name="Settings" component={SettingsPage} />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Register"
+        component={RegisterScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="OperationScreen"
+        component={OperationScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsPage}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
