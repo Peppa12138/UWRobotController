@@ -49,7 +49,9 @@ const PreLoginScreen = () => {
       </View>
       {/* 底部文字 */}
       <View style={styles.bottomTextContainer}>
-        <Text style={styles.bottomText}>请先登录后进入</Text>
+        <Text style={styles.bottomText}>连接设备</Text>
+        <Text style={styles.bottomText}>账号信息</Text>
+        <Text style={styles.bottomText}>设置</Text>
       </View>
       {/* 点击任意位置跳转 */}
       <TouchableOpacity
@@ -95,6 +97,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: height / 2 - 120,
     alignItems: 'center',
+    justifyContent: 'space-evenly', // 平均分配间距
+    height: 90, // 根据需要调整间距的高度
   },
   bottomText: {
     fontSize: 21,
