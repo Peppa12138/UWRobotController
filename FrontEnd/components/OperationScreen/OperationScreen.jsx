@@ -5,7 +5,6 @@ import DirectionPad from '../Operations/DirectionPad';
 import FunctionKeys from '../Operations/FunctionKeys';
 import SettingsButton from '../Operations/SettingButton';
 import StatusView from '../Operations/StatusView';
-import SystemNavigationBar from 'react-native-system-navigation-bar';
 
 const ControlPanel = () => {
   // SystemNavigationBar.fullScreen(true); // 隐藏系统导航栏
@@ -50,12 +49,12 @@ const styles = StyleSheet.create({
   leftPanel: {
     position: 'absolute',
     bottom: 20,
-    left: 20,
+    left: 100,
   },
   rightPanel: {
     position: 'absolute',
     bottom: 20,
-    right: 20,
+    right: 80,
   },
 });
 
