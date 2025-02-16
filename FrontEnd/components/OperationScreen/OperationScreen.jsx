@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // 导航钩子
-import DirectionPad from '../components/Operations/DirectionPad';
-import FunctionKeys from '../components/Operations/FunctionKeys';
-import SettingsButton from '../components/Operations/SettingButton';
-import StatusView from '../components/Operations/StatusView';
+import DirectionPad from '../Operations/DirectionPad';
+import FunctionKeys from '../Operations/FunctionKeys';
+import SettingsButton from '../Operations/SettingButton';
+import StatusView from '../Operations/StatusView';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 
 const ControlPanel = () => {

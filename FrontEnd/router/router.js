@@ -1,11 +1,11 @@
-import React, {useState} from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from '../components/InitialScreen/LoginScreen';
 import RegisterScreen from '../components/InitialScreen/RegisterScreen';
-import OperationScreen from '../OperationScreen/OperationScreen';
+import OperationScreen from '../components/OperationScreen/OperationScreen';
 import PreLoginScreen from '../components/PreLogin/PreLogin';
 import SettingsPage from '../components/settingPage/SettingsPage'; // 导入设置页面
 
@@ -18,12 +18,12 @@ const App = () => {
       <Stack.Screen
         name="PreLogin"
         component={PreLoginScreen}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="OperationScreen" component={OperationScreen} />
-      <Stack.Screen name="Settings" component={SettingsPage} /> 
+      <Stack.Screen name="Settings" component={SettingsPage} />
     </Stack.Navigator>
   );
 };
