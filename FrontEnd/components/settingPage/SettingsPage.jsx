@@ -6,21 +6,34 @@ const SettingsPage = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.columnContainer}>
         {/* 返回键 */}
-        <TouchableOpacity style={styles.returnButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.returnButton}
+          onPress={() => navigation.navigate('OperationScreen')}>
           <Image
             source={require('../public/Images/return.png')} // 使用相对路径加载图片
             style={styles.returnButtonImage}
           />
         </TouchableOpacity>
         {/* 设置项 */}
-        <TouchableOpacity style={styles.settingItem} onPress={() => alert('点击了音效设置')}>
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={() => alert('点击了音效设置')}>
           <Text style={styles.settingText}>音效</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem} onPress={() => alert('点击了画面设置')}>
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={() => alert('点击了画面设置')}>
           <Text style={styles.settingText}>画面</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem} onPress={() => alert('点击了操作设置')}>
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={() => alert('点击了操作设置')}>
           <Text style={styles.settingText}>操作</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={() => navigation.navigate('PreLogin')}>
+          <Text style={styles.settingText}>登出</Text>
         </TouchableOpacity>
       </View>
     </View>
