@@ -12,6 +12,7 @@
   "dependencies": {
     "@ant-design/icons-react-native": "^2.3.2",
     "@ant-design/react-native": "^5.3.2",
+    "@react-native-community/slider": "^4.5.5",
     "@react-navigation/native": "^7.0.14",
     "@react-navigation/stack": "^7.1.1",
     "antd-mobile-icons": "^0.3.0",
