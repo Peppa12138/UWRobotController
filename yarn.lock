@@ -12,7 +12,7 @@
 
 "@ant-design/react-native@^5.3.2":
   version "5.3.2"
-  resolved "https://registry.npmmirror.com/@ant-design/react-native/-/react-native-5.3.2.tgz"
+  resolved "https://registry.npmmirror.com/@ant-design/react-native/-/react-native-5.3.2.tgz#338455d7984d8832cc6291fb03bde6b773b5f11b"
   integrity sha512-Nd4+n1PzZAkk70moXQYMwQ3iVEePWg82mpPdC8Uwxo8Zq7SF+dXcBQxYeyqdN2IHS5VJ3gDYxDC8mlG0WrV5Lg==
   dependencies:
     "@bang88/react-native-ultimate-listview" "^4.1.1"
@@ -1035,7 +1035,7 @@
     pirates "^4.0.6"
     source-map-support "^0.5.16"
 
-"@babel/runtime@^7.11.1", "@babel/runtime@^7.18.0", "@babel/runtime@^7.18.3", "@babel/runtime@^7.21.0", "@babel/runtime@^7.24.4", "@babel/runtime@^7.25.0", "@babel/runtime@^7.8.4":
+"@babel/runtime@^7.18.0", "@babel/runtime@^7.18.3", "@babel/runtime@^7.24.4", "@babel/runtime@^7.25.0", "@babel/runtime@^7.8.4":
   version "7.26.0"
   resolved "https://registry.npmmirror.com/@babel/runtime/-/runtime-7.26.0.tgz"
   integrity sha512-FDSOghenHTiToteC/QRlv2q3DhPZ/oOXTBoirfWNx1Cx3TMVcGWQtMMmQcSvb/JjpNeGzx8Pq/b4fKEJuWm1sw==
@@ -1134,19 +1134,11 @@
   resolved "https://registry.npmmirror.com/@eslint/js/-/js-8.57.1.tgz"
   integrity sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==
 
-"@floating-ui/core@^1.0.0", "@floating-ui/core@^1.6.0":
+"@floating-ui/core@^1.0.0":
   version "1.6.9"
   resolved "https://registry.npmmirror.com/@floating-ui/core/-/core-1.6.9.tgz"
   integrity sha512-uMXCuQ3BItDUbAMhIXw7UPXRfAlOAvZzdK9BWpE60MCn+Svt3aLn9jsPTi/WNGlRUu2uI0v5S7JiIUsbsvh3fw==
   dependencies:
-    "@floating-ui/utils" "^0.2.9"
-
-"@floating-ui/dom@^1.4.2":
-  version "1.6.13"
-  resolved "https://registry.npmmirror.com/@floating-ui/dom/-/dom-1.6.13.tgz"
-  integrity sha512-umqzocjDgNRGTuO7Q8CU32dkHkECqI8ZdMZ5Swb6QAM0t5rnlrN3lGo1hdpscRd3WS8T6DKYK4ephgIH9iRh3w==
-  dependencies:
-    "@floating-ui/core" "^1.6.0"
     "@floating-ui/utils" "^0.2.9"
 
 "@floating-ui/react-native@^0.10.6":
@@ -1890,52 +1882,6 @@
     "@react-navigation/elements" "^2.2.5"
     color "^4.2.3"
 
-"@react-spring/animated@~9.6.1":
-  version "9.6.1"
-  resolved "https://registry.npmmirror.com/@react-spring/animated/-/animated-9.6.1.tgz"
-  integrity sha512-ls/rJBrAqiAYozjLo5EPPLLOb1LM0lNVQcXODTC1SMtS6DbuBCPaKco5svFUQFMP2dso3O+qcC4k9FsKc0KxMQ==
-  dependencies:
-    "@react-spring/shared" "~9.6.1"
-    "@react-spring/types" "~9.6.1"
-
-"@react-spring/core@~9.6.1":
-  version "9.6.1"
-  resolved "https://registry.npmmirror.com/@react-spring/core/-/core-9.6.1.tgz"
-  integrity sha512-3HAAinAyCPessyQNNXe5W0OHzRfa8Yo5P748paPcmMowZ/4sMfaZ2ZB6e5x5khQI8NusOHj8nquoutd6FRY5WQ==
-  dependencies:
-    "@react-spring/animated" "~9.6.1"
-    "@react-spring/rafz" "~9.6.1"
-    "@react-spring/shared" "~9.6.1"
-    "@react-spring/types" "~9.6.1"
-
-"@react-spring/rafz@~9.6.1":
-  version "9.6.1"
-  resolved "https://registry.npmmirror.com/@react-spring/rafz/-/rafz-9.6.1.tgz"
-  integrity sha512-v6qbgNRpztJFFfSE3e2W1Uz+g8KnIBs6SmzCzcVVF61GdGfGOuBrbjIcp+nUz301awVmREKi4eMQb2Ab2gGgyQ==
-
-"@react-spring/shared@~9.6.1":
-  version "9.6.1"
-  resolved "https://registry.npmmirror.com/@react-spring/shared/-/shared-9.6.1.tgz"
-  integrity sha512-PBFBXabxFEuF8enNLkVqMC9h5uLRBo6GQhRMQT/nRTnemVENimgRd+0ZT4yFnAQ0AxWNiJfX3qux+bW2LbG6Bw==
-  dependencies:
-    "@react-spring/rafz" "~9.6.1"
-    "@react-spring/types" "~9.6.1"
-
-"@react-spring/types@~9.6.1":
-  version "9.6.1"
-  resolved "https://registry.npmmirror.com/@react-spring/types/-/types-9.6.1.tgz"
-  integrity sha512-POu8Mk0hIU3lRXB3bGIGe4VHIwwDsQyoD1F394OK7STTiX9w4dG3cTLljjYswkQN+hDSHRrj4O36kuVa7KPU8Q==
-
-"@react-spring/web@~9.6.1":
-  version "9.6.1"
-  resolved "https://registry.npmmirror.com/@react-spring/web/-/web-9.6.1.tgz"
-  integrity sha512-X2zR6q2Z+FjsWfGAmAXlQaoUHbPmfuCaXpuM6TcwXPpLE1ZD4A1eys/wpXboFQmDkjnrlTmKvpVna1MjWpZ5Hw==
-  dependencies:
-    "@react-spring/animated" "~9.6.1"
-    "@react-spring/core" "~9.6.1"
-    "@react-spring/shared" "~9.6.1"
-    "@react-spring/types" "~9.6.1"
-
 "@sideway/address@^4.1.5":
   version "4.1.5"
   resolved "https://registry.npmmirror.com/@sideway/address/-/address-4.1.5.tgz"
@@ -2238,18 +2184,6 @@
   resolved "https://registry.npmmirror.com/@ungap/structured-clone/-/structured-clone-1.2.1.tgz"
   integrity sha512-fEzPV3hSkSMltkw152tJKNARhOupqbH96MZWyRjNaYZOMIzbrTeQDG+MTc6Mr2pgzFQzFxAfmhGDNP5QK++2ZA==
 
-"@use-gesture/core@10.3.0":
-  version "10.3.0"
-  resolved "https://registry.npmmirror.com/@use-gesture/core/-/core-10.3.0.tgz"
-  integrity sha512-rh+6MND31zfHcy9VU3dOZCqGY511lvGcfyJenN4cWZe0u1BH6brBpBddLVXhF2r4BMqWbvxfsbL7D287thJU2A==
-
-"@use-gesture/react@10.3.0":
-  version "10.3.0"
-  resolved "https://registry.npmmirror.com/@use-gesture/react/-/react-10.3.0.tgz"
-  integrity sha512-3zc+Ve99z4usVP6l9knYVbVnZgfqhKah7sIG+PS2w+vpig2v2OLct05vs+ZXMzwxdNCMka8B+8WlOo0z6Pn6DA==
-  dependencies:
-    "@use-gesture/core" "10.3.0"
-
 abort-controller@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmmirror.com/abort-controller/-/abort-controller-3.0.0.tgz"
@@ -2274,21 +2208,6 @@ acorn@^8.8.2, acorn@^8.9.0:
   version "8.14.0"
   resolved "https://registry.npmmirror.com/acorn/-/acorn-8.14.0.tgz"
   integrity sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==
-
-ahooks@^3.7.6:
-  version "3.8.4"
-  resolved "https://registry.npmmirror.com/ahooks/-/ahooks-3.8.4.tgz"
-  integrity sha512-39wDEw2ZHvypaT14EpMMk4AzosHWt0z9bulY0BeDsvc9PqJEV+Kjh/4TZfftSsotBMq52iYIOFPd3PR56e0ZJg==
-  dependencies:
-    "@babel/runtime" "^7.21.0"
-    dayjs "^1.9.1"
-    intersection-observer "^0.12.0"
-    js-cookie "^3.0.5"
-    lodash "^4.17.21"
-    react-fast-compare "^3.2.2"
-    resize-observer-polyfill "^1.5.1"
-    screenfull "^5.0.0"
-    tslib "^2.4.1"
 
 ajv@^6.12.4:
   version "6.12.6"
@@ -2354,37 +2273,6 @@ antd-mobile-icons@^0.3.0:
   version "0.3.0"
   resolved "https://registry.npmmirror.com/antd-mobile-icons/-/antd-mobile-icons-0.3.0.tgz"
   integrity sha512-rqINQpJWZWrva9moCd1Ye695MZYWmqLPE+bY8d2xLRy7iSQwPsinCdZYjpUPp2zL/LnKYSyXxP2ut2A+DC+whQ==
-
-antd-mobile-v5-count@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.npmmirror.com/antd-mobile-v5-count/-/antd-mobile-v5-count-1.0.1.tgz"
-  integrity sha512-YGsiEDCPUDz3SzfXi6gLZn/HpeSMW+jgPc4qiYUr1fSopg3hkUie2TnooJdExgfiETHefH3Ggs58He0OVfegLA==
-
-antd-mobile@^5.38.1:
-  version "5.38.1"
-  resolved "https://registry.npmmirror.com/antd-mobile/-/antd-mobile-5.38.1.tgz"
-  integrity sha512-1szLVnmu6hz4iJfKFAsCImJkiLe8FV9IoFChXpnLRBz41wrSfjh7FwPuo0AfFfEuTmV2GYS6BNixiuGscHj+iQ==
-  dependencies:
-    "@floating-ui/dom" "^1.4.2"
-    "@rc-component/mini-decimal" "^1.1.0"
-    "@react-spring/web" "~9.6.1"
-    "@use-gesture/react" "10.3.0"
-    ahooks "^3.7.6"
-    antd-mobile-icons "^0.3.0"
-    antd-mobile-v5-count "^1.0.1"
-    classnames "^2.3.2"
-    dayjs "^1.11.7"
-    deepmerge "^4.3.1"
-    nano-memoize "^3.0.16"
-    rc-field-form "^1.34.2"
-    rc-segmented "~2.4.1"
-    rc-util "^5.38.1"
-    react-fast-compare "^3.2.2"
-    react-is "^18.2.0"
-    runes2 "^1.1.2"
-    staged-components "^1.1.3"
-    tslib "^2.5.0"
-    use-sync-external-store "^1.2.0"
 
 anymatch@^3.0.3:
   version "3.1.3"
@@ -2550,11 +2438,6 @@ async-limiter@~1.0.0:
   version "1.0.1"
   resolved "https://registry.npmmirror.com/async-limiter/-/async-limiter-1.0.1.tgz"
   integrity sha512-csOlWGAcRFJaI6m+F2WKdnMKr4HhdhFVBk0H/QbJFMCr+uO2kwohwXQPxw/9OCxp05r5ghVBFSyioixx3gfkNQ==
-
-async-validator@^4.1.0:
-  version "4.2.5"
-  resolved "https://registry.npmmirror.com/async-validator/-/async-validator-4.2.5.tgz"
-  integrity sha512-7HhHjtERjqlNbZtqNqy2rckN/SpOOlmDliet+lP7k+eKZEjPk3DgyeU9lIXLdeLz0uBbbVp+9Qdow9wJWgwwfg==
 
 asynckit@^0.4.0:
   version "0.4.0"
@@ -2976,7 +2859,7 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@^2.2.1, classnames@^2.3.2:
+classnames@^2.2.1:
   version "2.5.1"
   resolved "https://registry.npmmirror.com/classnames/-/classnames-2.5.1.tgz"
   integrity sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==
@@ -3296,7 +3179,7 @@ data-view-byte-offset@^1.0.1:
     es-errors "^1.3.0"
     is-data-view "^1.0.1"
 
-dayjs@^1.11.7, dayjs@^1.8.15, dayjs@^1.9.1:
+dayjs@^1.11.7, dayjs@^1.8.15:
   version "1.11.13"
   resolved "https://registry.npmmirror.com/dayjs/-/dayjs-1.11.13.tgz"
   integrity sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==
@@ -3335,7 +3218,7 @@ deep-is@^0.1.3:
   resolved "https://registry.npmmirror.com/deep-is/-/deep-is-0.1.4.tgz"
   integrity sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==
 
-deepmerge@^4.2.2, deepmerge@^4.3.0, deepmerge@^4.3.1:
+deepmerge@^4.2.2, deepmerge@^4.3.0:
   version "4.3.1"
   resolved "https://registry.npmmirror.com/deepmerge/-/deepmerge-4.3.1.tgz"
   integrity sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==
@@ -4579,11 +4462,6 @@ internal-slot@^1.1.0:
     hasown "^2.0.2"
     side-channel "^1.1.0"
 
-intersection-observer@^0.12.0:
-  version "0.12.2"
-  resolved "https://registry.npmmirror.com/intersection-observer/-/intersection-observer-0.12.2.tgz"
-  integrity sha512-7m1vEcPCxXYI8HqnL8CKI6siDyD+eIWSwgB3DZA+ZTogxk9I4CDnj4wilt9x/+/QbHI4YG5YZNmC6458/e9Ktg==
-
 invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.npmmirror.com/invariant/-/invariant-2.2.4.tgz"
@@ -5371,11 +5249,6 @@ joi@^17.2.1:
     "@sideway/formula" "^3.0.1"
     "@sideway/pinpoint" "^2.0.0"
 
-js-cookie@^3.0.5:
-  version "3.0.5"
-  resolved "https://registry.npmmirror.com/js-cookie/-/js-cookie-3.0.5.tgz"
-  integrity sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==
-
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.npmmirror.com/js-tokens/-/js-tokens-4.0.0.tgz"
@@ -6071,11 +5944,6 @@ named-placeholders@^1.1.3:
   dependencies:
     lru-cache "^7.14.1"
 
-nano-memoize@^3.0.16:
-  version "3.0.16"
-  resolved "https://registry.npmmirror.com/nano-memoize/-/nano-memoize-3.0.16.tgz"
-  integrity sha512-JyK96AKVGAwVeMj3MoMhaSXaUNqgMbCRSQB3trUV8tYZfWEzqUBKdK1qJpfuNXgKeHOx1jv/IEYTM659ly7zUA==
-
 nanoid@3.3.8:
   version "3.3.8"
   resolved "https://registry.npmjs.org/nanoid/-/nanoid-3.3.8.tgz"
@@ -6633,15 +6501,6 @@ raw-body@2.5.2:
     iconv-lite "0.4.24"
     unpipe "1.0.0"
 
-rc-field-form@^1.34.2:
-  version "1.44.0"
-  resolved "https://registry.npmmirror.com/rc-field-form/-/rc-field-form-1.44.0.tgz"
-  integrity sha512-el7w87fyDUsca63Y/s8qJcq9kNkf/J5h+iTdqG5WsSHLH0e6Usl7QuYSmSVzJMgtp40mOVZIY/W/QP9zwrp1FA==
-  dependencies:
-    "@babel/runtime" "^7.18.0"
-    async-validator "^4.1.0"
-    rc-util "^5.32.2"
-
 rc-field-form@^2.0.0:
   version "2.7.0"
   resolved "https://registry.npmmirror.com/rc-field-form/-/rc-field-form-2.7.0.tgz"
@@ -6651,26 +6510,7 @@ rc-field-form@^2.0.0:
     "@rc-component/async-validator" "^5.0.3"
     rc-util "^5.32.2"
 
-rc-motion@^2.4.4:
-  version "2.9.5"
-  resolved "https://registry.npmmirror.com/rc-motion/-/rc-motion-2.9.5.tgz"
-  integrity sha512-w+XTUrfh7ArbYEd2582uDrEhmBHwK1ZENJiSJVb7uRxdE7qJSYjbO2eksRXmndqyKqKoYPc9ClpPh5242mV1vA==
-  dependencies:
-    "@babel/runtime" "^7.11.1"
-    classnames "^2.2.1"
-    rc-util "^5.44.0"
-
-rc-segmented@~2.4.1:
-  version "2.4.1"
-  resolved "https://registry.npmmirror.com/rc-segmented/-/rc-segmented-2.4.1.tgz"
-  integrity sha512-KUi+JJFdKnumV9iXlm+BJ00O4NdVBp2TEexLCk6bK1x/RH83TvYKQMzIz/7m3UTRPD08RM/8VG/JNjWgWbd4cw==
-  dependencies:
-    "@babel/runtime" "^7.11.1"
-    classnames "^2.2.1"
-    rc-motion "^2.4.4"
-    rc-util "^5.17.0"
-
-rc-util@^5.17.0, rc-util@^5.32.2, rc-util@^5.38.1, rc-util@^5.39.1, rc-util@^5.44.0:
+rc-util@^5.32.2, rc-util@^5.39.1:
   version "5.44.3"
   resolved "https://registry.npmmirror.com/rc-util/-/rc-util-5.44.3.tgz"
   integrity sha512-q6KCcOFk3rv/zD3MckhJteZxb0VjAIFuf622B7ElK4vfrZdAzs16XR5p3VTdy3+U5jfJU5ACz4QnhLSuAGe5dA==
@@ -6685,11 +6525,6 @@ react-devtools-core@^5.3.1:
   dependencies:
     shell-quote "^1.6.1"
     ws "^7"
-
-react-fast-compare@^3.2.2:
-  version "3.2.2"
-  resolved "https://registry.npmmirror.com/react-fast-compare/-/react-fast-compare-3.2.2.tgz"
-  integrity sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==
 
 react-freeze@^1.0.0:
   version "1.0.4"
@@ -6781,6 +6616,11 @@ react-native-system-navigation-bar@^2.6.4:
   version "2.6.4"
   resolved "https://mirrors.cloud.tencent.com/npm/react-native-system-navigation-bar/-/react-native-system-navigation-bar-2.6.4.tgz"
   integrity sha512-4pysgADW53PiuHv+2glzNLJnHSxqDszZvLoitLFI5os4D+gCDfxmR36VSET4EnXkzSf8X9mbeFkHYDypDHJyZA==
+
+react-native-toast-message@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.npmmirror.com/react-native-toast-message/-/react-native-toast-message-2.2.1.tgz#f395321e9bc818ce63274c38a3d294ed997a4a27"
+  integrity sha512-iXFMnlxPcgKKs4bZOIl06W16m6KXMh/bAYpWLyVXlISSCdcL2+FX5WPpRP3TGQeM/u9q+j5ex48DDY+72en+Sw==
 
 react-native@0.76.6:
   version "0.76.6"
@@ -7014,11 +6854,6 @@ require-main-filename@^2.0.0:
   resolved "https://registry.npmmirror.com/require-main-filename/-/require-main-filename-2.0.0.tgz"
   integrity sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==
 
-resize-observer-polyfill@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.npmmirror.com/resize-observer-polyfill/-/resize-observer-polyfill-1.5.1.tgz"
-  integrity sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg==
-
 resolve-cwd@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmmirror.com/resolve-cwd/-/resolve-cwd-3.0.0.tgz"
@@ -7108,11 +6943,6 @@ run-parallel@^1.1.9:
   dependencies:
     queue-microtask "^1.2.2"
 
-runes2@^1.1.2:
-  version "1.1.4"
-  resolved "https://registry.npmmirror.com/runes2/-/runes2-1.1.4.tgz"
-  integrity sha512-LNPnEDPOOU4ehF71m5JoQyzT2yxwD6ZreFJ7MxZUAoMKNMY1XrAo60H1CUoX5ncSm0rIuKlqn9JZNRrRkNou2g==
-
 safe-array-concat@^1.1.3:
   version "1.1.3"
   resolved "https://registry.npmmirror.com/safe-array-concat/-/safe-array-concat-1.1.3.tgz"
@@ -7176,11 +7006,6 @@ scheduler@^0.23.2:
   integrity sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==
   dependencies:
     loose-envify "^1.1.0"
-
-screenfull@^5.0.0:
-  version "5.2.0"
-  resolved "https://registry.npmmirror.com/screenfull/-/screenfull-5.2.0.tgz"
-  integrity sha512-9BakfsO2aUQN2K9Fdbj87RJIEZ82Q9IGim7FqM5OsebfoFC6ZHXgDq/KvniuLTPdeM8wY2o6Dj3WQ7KeQCj3cA==
 
 selfsigned@^2.4.1:
   version "2.4.1"
@@ -7503,11 +7328,6 @@ stacktrace-parser@^0.1.10:
   dependencies:
     type-fest "^0.7.1"
 
-staged-components@^1.1.3:
-  version "1.1.3"
-  resolved "https://registry.npmmirror.com/staged-components/-/staged-components-1.1.3.tgz"
-  integrity sha512-9EIswzDqjwlEu+ymkV09TTlJfzSbKgEnNteUnZSTxkpMgr5Wx2CzzA9WcMFWBNCldqVPsHVnRGGrApduq2Se5A==
-
 static-extend@^0.1.1:
   version "0.1.2"
   resolved "https://registry.npmmirror.com/static-extend/-/static-extend-0.1.2.tgz"
@@ -7785,7 +7605,7 @@ tslib@^1.8.1:
   resolved "https://registry.npmmirror.com/tslib/-/tslib-1.14.1.tgz"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
-tslib@^2.0.1, tslib@^2.4.1, tslib@^2.5.0:
+tslib@^2.0.1:
   version "2.8.1"
   resolved "https://registry.npmmirror.com/tslib/-/tslib-2.8.1.tgz"
   integrity sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==
@@ -7973,7 +7793,7 @@ use-latest-callback@^0.2.1:
   resolved "https://registry.npmjs.org/use-latest-callback/-/use-latest-callback-0.2.3.tgz"
   integrity sha512-7vI3fBuyRcP91pazVboc4qu+6ZqM8izPWX9k7cRnT8hbD5svslcknsh3S9BUhaK11OmgTV4oWZZVSeQAiV53SQ==
 
-use-sync-external-store@^1.2.0, use-sync-external-store@^1.2.2:
+use-sync-external-store@^1.2.2:
   version "1.4.0"
   resolved "https://registry.npmmirror.com/use-sync-external-store/-/use-sync-external-store-1.4.0.tgz"
   integrity sha512-9WXSPC5fMv61vaupRkCKCxsPxBocVnwakBEkMIHHpkTTg6icbJtg6jzgtLDm4bl3cSHAca52rYWih0k4K3PfHw==
