@@ -28,8 +28,10 @@ const SettingsPage = ({ navigation, route }) => {
     <View style={styles.container}>
       {/* 列框部分（左侧） */}
       <View style={styles.columnContainer}>
-        {/* 返回按钮 */}
-        <TouchableOpacity style={styles.returnButton} onPress={handleGoBack}>
+        {/* 返回键 */}
+        <TouchableOpacity
+          style={styles.returnButton}
+          onPress={() => navigation.navigate('OperationScreen')}>
           <Image
             source={require('../public/Images/return.png')}
             style={styles.returnButtonImage}
