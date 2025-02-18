@@ -1,5 +1,9 @@
-// 加载 .env 文件
 require('dotenv').config();
+
+console.log('环境变量 DB_HOST:', process.env.DB_HOST);
+console.log('环境变量 DB_USER:', process.env.DB_USER);
+console.log('环境变量 DB_PASSWORD:', process.env.DB_PASSWORD);
+console.log('环境变量 DB_DATABASE:', process.env.DB_DATABASE);
 
 const mysql = require('mysql2');
 

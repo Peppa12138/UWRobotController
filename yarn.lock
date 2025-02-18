@@ -12,7 +12,7 @@
 
 "@ant-design/react-native@^5.3.2":
   version "5.3.2"
-  resolved "https://registry.npmmirror.com/@ant-design/react-native/-/react-native-5.3.2.tgz#338455d7984d8832cc6291fb03bde6b773b5f11b"
+  resolved "https://registry.npmmirror.com/@ant-design/react-native/-/react-native-5.3.2.tgz"
   integrity sha512-Nd4+n1PzZAkk70moXQYMwQ3iVEePWg82mpPdC8Uwxo8Zq7SF+dXcBQxYeyqdN2IHS5VJ3gDYxDC8mlG0WrV5Lg==
   dependencies:
     "@bang88/react-native-ultimate-listview" "^4.1.1"
@@ -3333,7 +3333,7 @@ doctrine@^3.0.0:
 
 dotenv@^16.4.7:
   version "16.4.7"
-  resolved "https://registry.npmmirror.com/dotenv/-/dotenv-16.4.7.tgz#0e20c5b82950140aa99be360a8a5f52335f53c26"
+  resolved "https://mirrors.cloud.tencent.com/npm/dotenv/-/dotenv-16.4.7.tgz"
   integrity sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==
 
 dunder-proto@^1.0.0, dunder-proto@^1.0.1:
@@ -4084,7 +4084,7 @@ fs.realpath@^1.0.0:
 
 fsevents@^2.3.2:
   version "2.3.3"
-  resolved "https://registry.npmmirror.com/fsevents/-/fsevents-2.3.3.tgz#cac6407785d03675a2a5e1a5305c697b347d90d6"
+  resolved "https://mirrors.cloud.tencent.com/npm/fsevents/-/fsevents-2.3.3.tgz#cac6407785d03675a2a5e1a5305c697b347d90d6"
   integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
 
 function-bind@^1.1.2:
@@ -6624,7 +6624,7 @@ react-native-system-navigation-bar@^2.6.4:
 
 react-native-toast-message@^2.2.1:
   version "2.2.1"
-  resolved "https://registry.npmmirror.com/react-native-toast-message/-/react-native-toast-message-2.2.1.tgz#f395321e9bc818ce63274c38a3d294ed997a4a27"
+  resolved "https://mirrors.cloud.tencent.com/npm/react-native-toast-message/-/react-native-toast-message-2.2.1.tgz"
   integrity sha512-iXFMnlxPcgKKs4bZOIl06W16m6KXMh/bAYpWLyVXlISSCdcL2+FX5WPpRP3TGQeM/u9q+j5ex48DDY+72en+Sw==
 
 react-native@0.76.6:
