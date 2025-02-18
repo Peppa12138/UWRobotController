@@ -1,6 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, ImageBackground } from 'react-native';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import React, {useState, useEffect} from 'react';
+import {Text, View, StyleSheet, ImageBackground} from 'react-native';
+import {
+  useNavigation,
+  useRoute,
+  useFocusEffect,
+} from '@react-navigation/native';
+import axios from 'axios';
 
 import DirectionPad from '../Operations/DirectionPad';
 import FunctionKeys from '../Operations/FunctionKeys';
@@ -12,20 +17,39 @@ const ControlPanel = () => {
   const route = useRoute(); // 获取当前路由
   const [fontSize, setFontSize] = useState(route.params?.fontSize || 14); // 初始字体大小
 
+  const [statusData, setStatusData] = useState({});
+  // 获取并更新状态数据
+  useEffect(() => {
+    const fetchStatusData = async () => {
+      try {
+        const response = await axios.get('http://10.0.2.2:5000/api/status');
+        setStatusData(response.data);
+      } catch (error) {
+        console.error('获取状态数据失败:', error);
+      }
+    };
+
+    // 每 5 秒拉取一次状态数据
+    const intervalId = setInterval(fetchStatusData, 5000);
+
+    // 在组件卸载时清除定时器
+    return () => clearInterval(intervalId);
+  }, []);
+
   // 每次页面获得焦点时更新 fontSize
   useFocusEffect(
     React.useCallback(() => {
       if (route.params?.fontSize) {
         setFontSize(route.params.fontSize); // 更新字体大小
       }
-    }, [route.params?.fontSize])
+    }, [route.params?.fontSize]),
   );
 
   const handleSettingsPress = () => {
     navigation.navigate('Settings'); // 跳转到设置页面
   };
 
-  const handleDirectionPress = (direction) => {
+  const handleDirectionPress = direction => {
     console.log(`Pressed ${direction} button`);
   };
 
@@ -33,8 +57,7 @@ const ControlPanel = () => {
     <ImageBackground
       source={require('../public/Images/opBackground.png')} // 替换为你的背景图片路径
       style={styles.container}
-      resizeMode="cover"
-    >
+      resizeMode="cover">
       {/* 左手操作区域 */}
       <View style={styles.leftPanel}>
         <DirectionPad onPress={handleDirectionPress} />
@@ -50,7 +73,8 @@ const ControlPanel = () => {
 
       {/* 状态视图，传递字体大小 */}
       <View style={styles.statusViewContainer}>
-        <StatusView fontSize={fontSize} />
+        <StatusView fontSize={fontSize} statusData={statusData} />
+        {/* <StatusView fontSize={fontSize} /> */}
       </View>
     </ImageBackground>
   );
