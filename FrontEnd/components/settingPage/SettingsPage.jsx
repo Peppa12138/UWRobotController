@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
 import Slider from '@react-native-community/slider';
 
-const SettingsPage = ({ navigation, route }) => {
+const SettingsPage = ({navigation, route}) => {
   const initialFontSize = route.params?.fontSize || 14; // 从导航参数获取初始字体大小
   const [fontSize, setFontSize] = useState(initialFontSize); // 字体大小状态
 
@@ -14,24 +14,22 @@ const SettingsPage = ({ navigation, route }) => {
   }, [route.params?.fontSize]);
 
   // 处理字体大小变化
-  const handleFontSizeChange = (value) => {
+  const handleFontSizeChange = value => {
     setFontSize(value); // 更新字体大小状态
-    navigation.setParams({ fontSize: value }); // 更新导航参数
+    navigation.setParams({fontSize: value}); // 更新导航参数
   };
 
   // 返回操作页面
   const handleGoBack = () => {
-    navigation.navigate('OperationScreen', { fontSize }); // 携带最新的 fontSize 返回
+    navigation.navigate('OperationScreen', {fontSize}); // 携带最新的 fontSize 返回
   };
 
   return (
     <View style={styles.container}>
       {/* 列框部分（左侧） */}
       <View style={styles.columnContainer}>
-        {/* 返回键 */}
-        <TouchableOpacity
-          style={styles.returnButton}
-          onPress={() => navigation.navigate('OperationScreen')}>
+        {/* 返回按钮 */}
+        <TouchableOpacity style={styles.returnButton} onPress={handleGoBack}>
           <Image
             source={require('../public/Images/return.png')}
             style={styles.returnButtonImage}
@@ -60,8 +58,15 @@ const SettingsPage = ({ navigation, route }) => {
             trackStyle={styles.trackStyle} // 轨道样式
             thumbStyle={styles.thumbStyle} // 滑块样式
           />
+          <Text style={[styles.label, {fontSize}]}>
+            当前字体大小: {fontSize}
+          </Text>
         </View>
-        <Text style={[styles.label, { fontSize }]}>当前字体大小: {fontSize}</Text>
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={() => navigation.navigate('PreLogin')}>
+          <Text style={styles.label}>登出</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -114,7 +119,7 @@ const styles = StyleSheet.create({
     height: 4, // 轨道高度
     borderRadius: 2, // 轨道圆角
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 2,
   },
@@ -124,7 +129,7 @@ const styles = StyleSheet.create({
     borderRadius: 10, // 滑块圆角
     backgroundColor: '#FF5722', // 滑块背景色
     shadowColor: '#FF5722',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.5,
     shadowRadius: 2,
   },

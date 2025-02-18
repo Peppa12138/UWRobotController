@@ -32,7 +32,9 @@
     "react-native-safe-area-context": "^5.2.0",
     "react-native-screens": "^4.6.0",
     "react-native-system-navigation-bar": "^2.6.4",
-    "react-native-toast-message": "^2.2.1"
+    "react-native-toast-message": "^2.2.1",
+    "react-native-video": "^6.10.1",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
