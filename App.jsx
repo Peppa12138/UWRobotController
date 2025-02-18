@@ -1,8 +1,8 @@
 import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import Router from './FrontEnd/router/router';
-// import Toast from 'react-native-toast-message';
 import Toast from 'react-native-toast-message';
+import 'react-native-gesture-handler';
 const App = () => {
 
   return (
@@ -10,7 +10,8 @@ const App = () => {
       <NavigationContainer>
         <Router />
       </NavigationContainer>
-      <Toast ref={ref => Toast.setRef(ref)} />
+      <Toast/>
+      {/* <Toast ref={ref => Toast.setRef(ref)} /> */}
     </>
   );
 };

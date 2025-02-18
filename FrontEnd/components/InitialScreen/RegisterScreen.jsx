@@ -116,8 +116,6 @@ const RegisterScreen = ({navigation}) => {
         <Text style={styles.loginText}>已有账号？去登录</Text>
       </TouchableOpacity>
 
-      {/* Toast 提示 */}
-      <Toast ref={ref => Toast.setRef(ref)} />
     </View>
   );
 };
