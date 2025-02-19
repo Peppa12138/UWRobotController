@@ -75,30 +75,32 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{translateX: -295}, {translateY: -260}],
+    transform: [{translateX: -254}, {translateY: -260}],
   },
   centerImage: {
-    width: 590,
+    width: 530,
   },
   topRightImageContainer: {
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{translateX: 290}, {translateY: -170}],
+    transform: [{translateX: 266}, {translateY: -162}],
   },
   topRightImage: {
     width: 50,
-    height: 66,
+    height: 55,
   },
   bottomTextContainer: {
     position: 'absolute',
-    bottom: height / 2 - 120,
+    bottom: height / 9,
     alignItems: 'center',
     justifyContent: 'space-evenly', // 平均分配间距
-    height: 90, // 根据需要调整间距的高度
+    height: 100, // 根据需要调整间距的高度
   },
   bottomText: {
-    fontSize: 21,
+    fontSize: 29,
+    lineHeight: 41,
+    fontWeight: '900',
     color: '#ffffff', // 字体颜色
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 1},

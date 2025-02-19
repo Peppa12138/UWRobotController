@@ -5,18 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
-} from 'react-native';
-import axios from 'axios'; // 导入 axios
-
-
-import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
   Image,
 } from 'react-native';
 import axios from 'axios'; // 导入 axios

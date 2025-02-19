@@ -9,8 +9,8 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // 导航钩子
-import { Button } from '@ant-design/react-native';
+import {useNavigation} from '@react-navigation/native'; // 导航钩子
+import {Button} from '@ant-design/react-native';
 
 const {width, height} = Dimensions.get('window');
 const PreLoginScreen = () => {
@@ -82,20 +82,20 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{translateX: -295}, {translateY: -260}],
+    transform: [{translateX: -254}, {translateY: -260}],
   },
   centerImage: {
-    width: 590,
+    width: 530,
   },
   topRightImageContainer: {
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{translateX: 290}, {translateY: -170}],
+    transform: [{translateX: 266}, {translateY: -162}],
   },
   topRightImage: {
     width: 50,
-    height: 66,
+    height: 55,
   },
   bottomTextContainer: {
     position: 'absolute',
