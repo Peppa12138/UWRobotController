@@ -15,11 +15,10 @@ const PreLoginScreen = () => {
   const navigation = useNavigation(); // 获取导航实例
   let heights = height + 1; //解决底部白边
 
-  const handlePress = () => {
-    navigation.navigate('Login'); // 跳转到登录页面
-    console.log(111);
+  //处理连接设备
+  const handleConnection = () => {
+    navigation.navigate('OperationScreen');
   };
-
   return (
     <View style={styles.container}>
       {/* 背景图片 */}
@@ -49,14 +48,12 @@ const PreLoginScreen = () => {
       </View>
       {/* 底部文字 */}
       <View style={styles.bottomTextContainer}>
-        <Text style={styles.bottomText}>连接设备</Text>
+        <TouchableOpacity onPress={handleConnection} style={styles.bottomText}>
+          <Text style={styles.bottomText}>连接设备</Text>
+        </TouchableOpacity>
         <Text style={styles.bottomText}>账号信息</Text>
         <Text style={styles.bottomText}>设置</Text>
       </View>
-      {/* 点击任意位置跳转 */}
-      <TouchableOpacity
-        onPress={handlePress}
-        style={styles.overlay}></TouchableOpacity>
     </View>
   );
 };

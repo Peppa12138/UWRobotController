@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import axios from 'axios'; // 导入 axios
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({navigation}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   // 前端验证账号格式
-  const validateUsername = (username) => {
+  const validateUsername = username => {
     const regex = /^[a-zA-Z0-9_]{5,12}$/; // 只允许英文、数字和下划线，长度为5~12
     return regex.test(username);
   };
@@ -16,7 +23,10 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = () => {
     // 验证输入账号和密码的合法性
     if (!validateUsername(username)) {
-      Alert.alert('登录失败', '账号必须由英文、数字或下划线构成，且长度为5~12位');
+      Alert.alert(
+        '登录失败',
+        '账号必须由英文、数字或下划线构成，且长度为5~12位',
+      );
       return;
     }
 
@@ -27,14 +37,14 @@ const LoginScreen = ({ navigation }) => {
 
     // 如果合法，发送登录请求
     axios
-      .post('http://10.0.2.2:5000/api/auth/login', { username, password })
-      .then((response) => {
+      .post('http://10.0.2.2:5000/api/auth/login', {username, password})
+      .then(response => {
         if (response.data.message) {
           Alert.alert('登录成功', response.data.message);
-          navigation.navigate('OperationScreen');
+          navigation.navigate('AfterLogin');
         }
       })
-      .catch((error) => {
+      .catch(error => {
         if (error.response) {
           Alert.alert('登录失败', error.response.data.error);
         } else if (error.request) {
