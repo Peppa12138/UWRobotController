@@ -9,7 +9,9 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native'; // 导航钩子
+import { useNavigation } from '@react-navigation/native'; // 导航钩子
+import { Button } from '@ant-design/react-native';
+
 const {width, height} = Dimensions.get('window');
 const PreLoginScreen = () => {
   const navigation = useNavigation(); // 获取导航实例
@@ -49,12 +51,16 @@ const PreLoginScreen = () => {
       </View>
       {/* 底部文字 */}
       <View style={styles.bottomTextContainer}>
-        <Text style={styles.bottomText}>请先登录后进入</Text>
+        {/* <Text style={styles.bottomText} onPress={handlePress}>请先登录后进入</Text> */}
+        <Button type="primary" size="large" onPress={handlePress}>
+          请先登录后进入
+        </Button>
       </View>
       {/* 点击任意位置跳转 */}
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={handlePress}
-        style={styles.overlay}></TouchableOpacity>
+        style={styles.overlay}>
+        </TouchableOpacity> */}
     </View>
   );
 };

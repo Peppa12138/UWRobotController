@@ -1,13 +1,19 @@
-import { Text, View } from 'react-native';
-import React, { Component } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, {useEffect} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
 import Router from './FrontEnd/router/router';
-export default class App extends Component {
-  render() {
-    return (
+import Toast from 'react-native-toast-message';
+import 'react-native-gesture-handler';
+const App = () => {
+
+  return (
+    <>
       <NavigationContainer>
         <Router />
       </NavigationContainer>
-    );
-  }
-}
+      <Toast/>
+      {/* <Toast ref={ref => Toast.setRef(ref)} /> */}
+    </>
+  );
+};
+
+export default App;
