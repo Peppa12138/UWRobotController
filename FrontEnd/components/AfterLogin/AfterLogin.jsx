@@ -10,11 +10,13 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native'; // 导航钩子
+import Orientation from 'react-native-orientation-locker'; //竖屏切换组件
 const {width, height} = Dimensions.get('window');
-const PreLoginScreen = () => {
+
+const AfterLoginScreen = () => {
   const navigation = useNavigation(); // 获取导航实例
   let heights = height + 1; //解决底部白边
-
+  Orientation.lockToLandscape(); //锁住横屏
   //处理连接设备
   const handleConnection = () => {
     navigation.navigate('OperationScreen');
@@ -116,4 +118,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PreLoginScreen;
+export default AfterLoginScreen;

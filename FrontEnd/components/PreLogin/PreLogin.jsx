@@ -11,12 +11,13 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native'; // 导航钩子
 import {Button} from '@ant-design/react-native';
-
+import Orientation from 'react-native-orientation-locker'; //竖屏切换组件
 const {width, height} = Dimensions.get('window');
+
 const PreLoginScreen = () => {
   const navigation = useNavigation(); // 获取导航实例
   let heights = height + 1; //解决底部白边
-
+  Orientation.lockToLandscape(); //锁住横屏
   const handlePress = () => {
     navigation.navigate('Login'); // 跳转到登录页面
     console.log(111);
