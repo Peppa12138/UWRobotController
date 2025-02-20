@@ -8,11 +8,12 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import Toast from 'react-native-toast-message'; // 导入 Toast 组件
+import Orientation from 'react-native-orientation-locker'; //竖屏切换组件
 
 const RegisterScreen = ({navigation}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-
+  Orientation.lockToPortrait(); //锁住竖屏
   // 前端验证用户名和密码
   const validateUsername = username => {
     const regex = /^[a-zA-Z0-9_]{5,12}$/; // 只允许英文、数字和下划线，长度为5~12
@@ -115,7 +116,6 @@ const RegisterScreen = ({navigation}) => {
       <TouchableOpacity onPress={() => navigation.navigate('Login')}>
         <Text style={styles.loginText}>已有账号？去登录</Text>
       </TouchableOpacity>
-
     </View>
   );
 };

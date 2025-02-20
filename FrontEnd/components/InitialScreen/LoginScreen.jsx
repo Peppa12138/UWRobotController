@@ -9,11 +9,13 @@ import {
 } from 'react-native';
 import axios from 'axios'; // 导入 axios
 import Toast from 'react-native-toast-message'; // 导入 Toast 组件
+import Orientation from 'react-native-orientation-locker'; //竖屏切换组件
+
 const LoginScreen = ({navigation}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false); // 控制密码明文或加密显示
-
+  Orientation.lockToPortrait(); //锁住竖屏
   // 前端验证账号格式
   const validateUsername = username => {
     const regex = /^[a-zA-Z0-9_]{5,12}$/; // 只允许英文、数字和下划线，长度为5~12
