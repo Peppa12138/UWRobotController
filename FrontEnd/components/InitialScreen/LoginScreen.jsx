@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 5,
     alignItems: 'center',
-    width: '30%', // 设置按钮宽度，确保居中
+    width: '50%', // 设置按钮宽度，确保居中
   },
   loginButtonText: {
     color: 'white',

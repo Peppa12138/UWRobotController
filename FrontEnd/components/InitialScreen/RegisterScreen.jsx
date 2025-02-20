@@ -138,7 +138,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 20,
     paddingLeft: 10,
-    width: '60%', // 输入框宽度适应
+    width: 350, // 输入框宽度适应
+    fontSize: 13,
   },
   registerButton: {
     backgroundColor: 'blue',
@@ -147,7 +148,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 5,
     alignItems: 'center',
-    width: '30%', // 设置按钮宽度，确保居中
+    width: '50%', // 设置按钮宽度，确保居中
   },
   registerButtonText: {
     color: 'white',
