@@ -58,10 +58,13 @@ const App = () => {
       <Stack.Screen
         name="Settings"
         component={SettingsPage}
-        options={{ headerShown: false, gestureEnabled: false }}
+        options={{
+          headerShown: false,
+          gestureEnabled: false,
+          presentation: 'modal', // 设置为模态框
+        }}
       />
     </Stack.Navigator>
-
   );
 };
 
