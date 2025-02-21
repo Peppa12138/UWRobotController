@@ -8,19 +8,18 @@ console.log('环境变量 DB_DATABASE:', process.env.DB_DATABASE);
 const mysql = require('mysql2');
 
 const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
 });
 
 db.connect(err => {
-    if (err) {
-        console.error('数据库连接失败:', err);
-        process.exit(1);
-    }
-    console.log('数据库连接成功');
+  if (err) {
+    console.error('数据库连接失败:', err);
+    process.exit(1);
+  }
+  console.log('数据库连接成功');
 });
 
 module.exports = db;
-

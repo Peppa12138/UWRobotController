@@ -10,16 +10,17 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native'; // 导航钩子
+import Orientation from 'react-native-orientation-locker'; //竖屏切换组件
 const {width, height} = Dimensions.get('window');
-const PreLoginScreen = () => {
+
+const AfterLoginScreen = () => {
   const navigation = useNavigation(); // 获取导航实例
   let heights = height + 1; //解决底部白边
-
-  const handlePress = () => {
-    navigation.navigate('Login'); // 跳转到登录页面
-    console.log(111);
+  Orientation.lockToLandscape(); //锁住横屏
+  //处理连接设备
+  const handleConnection = () => {
+    navigation.navigate('OperationScreen');
   };
-
   return (
     <View style={styles.container}>
       {/* 背景图片 */}
@@ -49,14 +50,12 @@ const PreLoginScreen = () => {
       </View>
       {/* 底部文字 */}
       <View style={styles.bottomTextContainer}>
-        <Text style={styles.bottomText}>连接设备</Text>
+        <TouchableOpacity onPress={handleConnection} style={styles.bottomText}>
+          <Text style={styles.bottomText}>连接设备</Text>
+        </TouchableOpacity>
         <Text style={styles.bottomText}>账号信息</Text>
         <Text style={styles.bottomText}>设置</Text>
       </View>
-      {/* 点击任意位置跳转 */}
-      <TouchableOpacity
-        onPress={handlePress}
-        style={styles.overlay}></TouchableOpacity>
     </View>
   );
 };
@@ -78,30 +77,32 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{translateX: -295}, {translateY: -260}],
+    transform: [{translateX: -254}, {translateY: -260}],
   },
   centerImage: {
-    width: 590,
+    width: 530,
   },
   topRightImageContainer: {
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{translateX: 290}, {translateY: -170}],
+    transform: [{translateX: 266}, {translateY: -162}],
   },
   topRightImage: {
     width: 50,
-    height: 66,
+    height: 55,
   },
   bottomTextContainer: {
     position: 'absolute',
-    bottom: height / 2 - 120,
+    bottom: height / 9,
     alignItems: 'center',
     justifyContent: 'space-evenly', // 平均分配间距
-    height: 90, // 根据需要调整间距的高度
+    height: 100, // 根据需要调整间距的高度
   },
   bottomText: {
-    fontSize: 21,
+    fontSize: 29,
+    lineHeight: 41,
+    fontWeight: '900',
     color: '#ffffff', // 字体颜色
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 1},
@@ -117,4 +118,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PreLoginScreen;
+export default AfterLoginScreen;
