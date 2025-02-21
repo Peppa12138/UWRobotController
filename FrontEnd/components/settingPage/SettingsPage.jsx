@@ -23,13 +23,16 @@ const SettingsPage = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.columnContainer}>
-        <TouchableOpacity style={styles.returnButton} onPress={handleGoBack}>
-          <Image
-            source={require('../public/Images/return.png')}
-            style={styles.returnButtonImage}
-          />
-        </TouchableOpacity>
+      {/* 返回按钮 */}
+      <TouchableOpacity style={styles.returnButton} onPress={handleGoBack}>
+        <Image
+          source={require('../public/Images/return.png')}
+          style={styles.returnButtonImage}
+        />
+      </TouchableOpacity>
+
+      {/* 弹窗内容 */}
+      <View style={styles.modalContent}>
         <Text style={styles.label}>字号：</Text>
         <Slider
           style={styles.slider}
@@ -44,7 +47,6 @@ const SettingsPage = ({ navigation, route }) => {
           trackStyle={styles.trackStyle}
           thumbStyle={styles.thumbStyle}
         />
-        <Text style={[styles.label, { fontSize }]}>当前字体大小: {fontSize}</Text>
       </View>
     </View>
   );
@@ -53,32 +55,38 @@ const SettingsPage = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)', // 透明背景
-    padding: 20,
-  },
-  columnContainer: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-  },
-  returnButton: {
-    width: 80,
-    height: 60,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // 半透明背景
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
   },
-  returnButtonImage: {
+  modalContent: {
+    width: '80%', // 弹窗宽度为屏幕宽度的80%
+    backgroundColor: '#333', // 弹窗背景色
+    borderRadius: 10, // 圆角
+    padding: 20,
+    alignItems: 'center',
+  },
+  returnButton: {
+    position: 'absolute', // 绝对定位
+    top: 40, // 距离顶部 40
+    left: 20, // 距离左侧 20
     width: 40,
     height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  returnButtonImage: {
+    width: 30,
+    height: 30,
     resizeMode: 'contain',
   },
   label: {
-    fontSize: 25,
+    fontSize: 18,
     color: '#fff',
     marginBottom: 20,
   },
   slider: {
-    width: 200,
+    width: '100%', // 滑动条宽度占满弹窗
     height: 40,
   },
   trackStyle: {
