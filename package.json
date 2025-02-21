@@ -34,13 +34,10 @@
     "react-native-screens": "^4.6.0",
     "react-native-system-navigation-bar": "^2.6.4",
     "react-native-toast-message": "^2.2.1",
-<<<<<<< HEAD
     "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1"
-=======
+    "socket.io-client": "^4.8.1",
     "react-native-video": "^6.10.1",
     "ws": "^8.18.0"
->>>>>>> f590b11e0c676b82af1b59d8dde709da57529ade
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
