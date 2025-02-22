@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Slider from '@react-native-community/slider';
-import { Button } from '@ant-design/react-native';
 
 const SettingsPage = ({ navigation, route }) => {
   const initialFontSize = route.params?.fontSize || 14; // 获取初始字体大小
@@ -20,6 +19,10 @@ const SettingsPage = ({ navigation, route }) => {
 
   const handleGoBack = () => {
     navigation.navigate('OperationScreen', { fontSize }); // 返回并传递字体大小
+  };
+
+  const handleLogout = () => {
+    navigation.navigate('PreLogin'); // 登出并跳转到 PreLogin 页面
   };
 
   return (
@@ -49,9 +52,14 @@ const SettingsPage = ({ navigation, route }) => {
           thumbStyle={styles.thumbStyle}
         />
       </View>
-      <Button onPress={() => navigation.navigate('PreLogin')}>
-        <Text>登出</Text>
-      </Button>
+
+      {/* 登出按钮 */}
+      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+        <Image
+          source={require('../public/Images/logout.png')} // 替换为你的登出图片路径
+          style={styles.logoutButtonImage}
+        />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -102,6 +110,21 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     backgroundColor: '#FF5722',
+  },
+  logoutButton: {
+    marginTop: 20, // 与上方内容的间距
+    backgroundColor: '#FF5722', // 按钮背景色
+    borderRadius: 20, // 圆角
+    padding: 10, // 内边距
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 40, // 按钮宽度
+    height: 40, // 按钮高度
+  },
+  logoutButtonImage: {
+    width: 20, // 图片宽度
+    height: 20, // 图片高度
+    resizeMode: 'contain', // 保持图片比例
   },
 });
 
