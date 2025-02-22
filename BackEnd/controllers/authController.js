@@ -74,3 +74,17 @@ exports.register = (req, res) => {
         });
     });
 };
+
+// 获取用户信息
+exports.getUserInfo = (req, res) => {
+    db.query('SELECT * FROM users WHERE user_id = 2', (err, result) => {
+        if (err) {
+            return res.status(500).send('数据库查询失败');
+        }
+        const user = result[0]; // 假设返回的用户数据
+        res.json({
+            username: user.username,
+            created_at: user.created_at,
+        });
+    });
+};

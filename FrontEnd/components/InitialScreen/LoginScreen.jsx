@@ -25,11 +25,6 @@ const LoginScreen = ({navigation}) => {
   const handleLogin = () => {
     // 验证输入账号和密码的合法性
     if (!validateUsername(username)) {
-      Alert.alert(
-        '登录失败',
-        '账号必须由英文、数字或下划线构成，且长度为5~12位',
-      );
-      console.log('1');
 
       Toast.show({
         type: 'error',

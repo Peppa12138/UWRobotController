@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Slider from '@react-native-community/slider';
+import { Button } from '@ant-design/react-native';
 
 const SettingsPage = ({ navigation, route }) => {
   const initialFontSize = route.params?.fontSize || 14; // 获取初始字体大小
@@ -48,6 +49,9 @@ const SettingsPage = ({ navigation, route }) => {
           thumbStyle={styles.thumbStyle}
         />
       </View>
+      <Button onPress={() => navigation.navigate('PreLogin')}>
+        <Text>登出</Text>
+      </Button>
     </View>
   );
 };

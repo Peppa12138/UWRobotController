@@ -57,11 +57,6 @@ const PreLoginScreen = () => {
           请先登录后进入
         </Button>
       </View>
-      {/* 点击任意位置跳转 */}
-      {/* <TouchableOpacity
-        onPress={handlePress}
-        style={styles.overlay}>
-        </TouchableOpacity> */}
     </View>
   );
 };

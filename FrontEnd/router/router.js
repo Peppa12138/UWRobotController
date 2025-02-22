@@ -6,8 +6,10 @@ import LoginScreen from '../components/InitialScreen/LoginScreen';
 import RegisterScreen from '../components/InitialScreen/RegisterScreen';
 import OperationScreen from '../components/OperationScreen/OperationScreen';
 import PreLoginScreen from '../components/PreLogin/PreLogin';
-import SettingsPage from '../components/settingPage/SettingsPage'; // 导入设置页面
+import SettingsPage from '../components/SettingPage/SettingsPage'; // 导入设置页面
 import AfterLoginScreen from '../components/AfterLogin/AfterLogin';
+import UserInformation from '../components/UserInformation/UserInformation';
+import ChangePassword from '../components/ChangePassword/ChangePassword';
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -63,6 +65,16 @@ const App = () => {
           gestureEnabled: false,
           presentation: 'modal', // 设置为模态框
         }}
+      />
+      <Stack.Screen
+        name="UserInformation"
+        component={UserInformation}
+        options={{ headerShown: false, gestureEnabled: false }}
+      />
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePassword}
+        options={{ headerShown: false, gestureEnabled: false }}
       />
     </Stack.Navigator>
   );
