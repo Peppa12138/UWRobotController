@@ -11,7 +11,6 @@ const App = () => {
         <Router />
       </NavigationContainer>
       <Toast/>
-      {/* <Toast ref={ref => Toast.setRef(ref)} /> */}
     </>
   );
 };
