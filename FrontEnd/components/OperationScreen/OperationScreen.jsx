@@ -8,11 +8,15 @@ import DirectionPad from '../Operations/DirectionPad';
 import FunctionKeys from '../Operations/FunctionKeys';
 import SettingsButton from '../Operations/SettingButton';
 import StatusView from '../Operations/StatusView';
+import VirtualJoystick from '../VirtualJoystick/VirtualJoystick'; // 物理摇杆组件
 
 const ControlPanel = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const [fontSize, setFontSize] = useState(route.params?.fontSize || 14);
+  const [controlMode, setControlMode] = useState(
+    route.params?.controlMode || 1,
+  ); // Default to virtual keys (1)
   const [statusData, setStatusData] = useState({});
 
   useEffect(() => {
@@ -34,15 +38,27 @@ const ControlPanel = () => {
       if (route.params?.fontSize) {
         setFontSize(route.params.fontSize);
       }
-    }, [route.params?.fontSize]),
+      if (route.params?.controlMode !== undefined) {
+        setControlMode(route.params.controlMode);
+      }
+    }, [route.params?.fontSize, route.params?.controlMode]),
   );
 
   const handleSettingsPress = () => {
-    navigation.navigate('Settings', { fontSize }); // 打开设置页面并传递 fontSize
+    navigation.navigate('Settings', {fontSize, controlMode}); // 打开设置页面并传递 fontSize
   };
 
-  const handleDirectionPress = (direction) => {
+  const handleDirectionPress = direction => {
     console.log(`Pressed ${direction} button`);
+  };
+
+  // 在 ControlPanel 中根据 controlMode 显示不同的操作界面
+  const renderControl = () => {
+    if (controlMode === 1) {
+      return <DirectionPad onPress={handleDirectionPress} />; // 显示虚拟按键
+    } else if (controlMode === 2) {
+      return <VirtualJoystick onMove={data => console.log(data)} />; // 显示物理摇杆
+    }
   };
 
   return (
@@ -58,7 +74,9 @@ const ControlPanel = () => {
       {/* 内容区域 */}
       <View style={styles.content}>
         <View style={styles.leftPanel}>
-          <DirectionPad onPress={handleDirectionPress} />
+          {/* <DirectionPad onPress={handleDirectionPress} /> */}
+          {/* {renderControl()} */}
+          <VirtualJoystick onMove={data => console.log(data)} />
         </View>
         <View style={styles.rightPanel}>
           <FunctionKeys />

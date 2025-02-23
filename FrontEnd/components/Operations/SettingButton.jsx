@@ -1,13 +1,14 @@
 import React from 'react';
 import { TouchableOpacity, Image, StyleSheet } from 'react-native';
-
+import { Icon } from '@ant-design/react-native';
+import {
+  outlineGlyphMap,
+  OutlineGlyphMapType,
+} from '@ant-design/icons-react-native/lib/outline';
 const SettingsButton = ({ onPress }) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.settingsButton}>
-      <Image
-        source={require('../public/Images/setting.png')} // 使用相对路径加载设置图标
-        style={styles.settingsIcon}
-      />
+      <Icon name="setting" />
     </TouchableOpacity>
   );
 };

@@ -31,7 +31,7 @@ const App = () => {
   }, []);
 
   return (
-    <Stack.Navigator initialRouteName="PreLogin">
+    <Stack.Navigator initialRouteName="Settings">
       <Stack.Screen
         name="PreLogin"
         component={PreLoginScreen}

@@ -31,7 +31,7 @@ const generateAndStoreStatusData = () => {
 };
 
 // 每 5 秒生成并存储一次数据
-setInterval(generateAndStoreStatusData, 5000);
+// setInterval(generateAndStoreStatusData, 5000);
 
 // 获取最新状态数据接口
 app.get('/api/status', (req, res) => {
