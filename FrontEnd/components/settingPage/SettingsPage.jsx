@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import {List, Radio, Button} from '@ant-design/react-native';
+
 const SettingsPage = ({navigation, route}) => {
   const initialFontSize = route.params?.fontSize || 14; // 获取初始字体大小
   const initialControlMode = route.params?.controlMode || 1; // 0: Virtual Key, 1: Physical Joystick
@@ -91,19 +92,19 @@ const SettingsPage = ({navigation, route}) => {
           trackStyle={styles.trackStyle}
           thumbStyle={styles.thumbStyle}
         />
-        <List renderHeader={'操作选择'}>
+        <List renderHeader={'操作选择'}
+         style={styles.listContainer} // 应用新的样式
+        >
           <Radio.Group
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-              paddingVertical: 6,
-              marginTop: 10,
-              width: '100%',
-            }}
+            style={styles.radioGroup}
             value={selectedValue}
             onChange={e => handleControlModeChange(e.target.value)}>
-            <Radio value={1}>虚拟摇杆</Radio>
-            <Radio value={2}>物理摇杆</Radio>
+            <Radio value={1} style={styles.radioItem}>
+              虚拟摇杆
+            </Radio>
+            <Radio value={2} style={styles.radioItem}>
+              物理摇杆
+            </Radio>
           </Radio.Group>
         </List>
       </View>
@@ -221,6 +222,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
+  },
+  radioGroup: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 6,
+    marginTop: 10,
+    width: '100%',
+    backgroundColor: '#333', // 设置背景色为透明
+  },
+  radioItem: {
+    color: '#fff', // 设置文字颜色为白色
+  },
+  listContainer: {
+    backgroundColor: '#333', // 设置操作选择部分的背景色
+    borderRadius: 10, // 圆角
+    padding: 10, // 内边距
+    width: '100%', // 宽度占满父容器
   },
 });
 
