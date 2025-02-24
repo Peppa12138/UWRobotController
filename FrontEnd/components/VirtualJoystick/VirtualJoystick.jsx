@@ -1,63 +1,77 @@
-import React, {useState, useRef} from 'react';
-import {View, PanResponder, StyleSheet, Text} from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, PanResponder, StyleSheet, Text, Animated } from 'react-native';
 
-const VirtualJoystick = ({onMove}) => {
-  const [stickPosition, setStickPosition] = useState({x: 0, y: 0});
-  const [stickRadius, setStickRadius] = useState(10); // 初始摇杆控制按钮半径
+const VirtualJoystick = ({ onMove }) => {
   const joystickRadius = 50; // 摇杆背景半径
+  const minStickRadius = 10; // 摇杆按钮最小半径
+  const maxStickRadius = 20; // 摇杆按钮最大半径
+  const maxDistance = joystickRadius - minStickRadius; // 最大偏移范围
+
+  const animatedPosition = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current; // 用于动画的位置
+  const animatedRadius = useRef(new Animated.Value(minStickRadius)).current; // 用于动画的半径
   const joystickRef = useRef(null);
 
-  // 计算摇杆的最大偏移范围
-  const maxDistance = joystickRadius - stickRadius;
+  // 平滑返回中心位置的动画
+  const animateStickToCenter = () => {
+    Animated.parallel([
+      Animated.spring(animatedPosition, {
+        toValue: { x: 0, y: 0 },
+        friction: 5, // 控制动画的平滑度
+        useNativeDriver: false,
+      }),
+      Animated.spring(animatedRadius, {
+        toValue: minStickRadius,
+        friction: 5,
+        useNativeDriver: false,
+      }),
+    ]).start();
+  };
 
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
       onPanResponderMove: (e, gestureState) => {
-        const offsetX = gestureState.moveX - joystickRadius;
-        const offsetY = gestureState.moveY - joystickRadius;
+        // 获取摇杆背景的绝对位置
+        joystickRef.current.measure((x, y, width, height, pageX, pageY) => {
+          const offsetX = gestureState.moveX - pageX - joystickRadius;
+          const offsetY = gestureState.moveY - pageY - joystickRadius;
 
-        // 计算与原点的距离
-        const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+          // 计算与原点的距离
+          const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
 
-        // 限制摇杆控制按钮的移动范围
-        if (distance <= maxDistance) {
-          setStickPosition({x: offsetX, y: offsetY});
+          if (distance <= maxDistance) {
+            // 在范围内，直接更新位置和半径
+            animatedPosition.setValue({ x: offsetX, y: offsetY });
+            const newRadius =
+              minStickRadius +
+              (distance / maxDistance) * (maxStickRadius - minStickRadius);
+            animatedRadius.setValue(newRadius);
+          } else {
+            // 超出范围，限制在最大距离内
+            const angle = Math.atan2(offsetY, offsetX);
+            animatedPosition.setValue({
+              x: Math.cos(angle) * maxDistance,
+              y: Math.sin(angle) * maxDistance,
+            });
+            animatedRadius.setValue(maxStickRadius); // 拉到边缘时，半径最大
+          }
 
-          // 使用距离计算力度并映射到一个范围来调整按钮半径
-          const maxStickRadius = 15; // 最大半径
-          const minStickRadius = 12; // 最小半径
-
-          // 将力度（distance/maxDistance）映射到一个合理范围内的半径
-          const newRadius =
-            minStickRadius +
-            (distance / maxDistance) * (maxStickRadius - minStickRadius);
-          setStickRadius(newRadius);
-        } else {
-          const angle = Math.atan2(offsetY, offsetX);
-          setStickPosition({
-            x: Math.cos(angle) * maxDistance,
-            y: Math.sin(angle) * maxDistance,
-          });
-          setStickRadius(30); // 最大力度时，半径恢复初始大小
-        }
-
-        // 传递摇杆的偏移量 (方向和力度)
-        if (onMove) {
-          onMove({
-            x: offsetX / joystickRadius,
-            y: offsetY / joystickRadius,
-            distance: Math.min(distance, maxDistance) / maxDistance,
-          });
-        }
+          // 传递摇杆的偏移量 (方向和力度)
+          if (onMove) {
+            onMove({
+              x: offsetX / joystickRadius,
+              y: offsetY / joystickRadius,
+              distance: Math.min(distance, maxDistance) / maxDistance,
+            });
+          }
+        });
       },
       onPanResponderRelease: () => {
-        // 重置摇杆到中心位置
-        setStickPosition({x: 0, y: 0});
-        setStickRadius(10); // 恢复到初始半径
+        // 释放时平滑返回中心位置
+        animateStickToCenter();
         if (onMove) {
-          onMove({x: 0, y: 0, distance: 0});
+          onMove({ x: 0, y: 0, distance: 0 });
         }
       },
     }),
@@ -69,26 +83,40 @@ const VirtualJoystick = ({onMove}) => {
       <View
         style={[
           styles.joystickBackground,
-          {width: joystickRadius * 2, height: joystickRadius * 2},
+          { width: joystickRadius * 2, height: joystickRadius * 2 },
         ]}
         {...panResponder.panHandlers}
-        ref={joystickRef}>
+        ref={joystickRef}
+      >
         {/* 摇杆控制按钮 */}
-        <View
+        <Animated.View
           style={[
             styles.stick,
             {
-              width: stickRadius * 2,
-              height: stickRadius * 2,
-              left: joystickRadius + stickPosition.x - stickRadius,
-              top: joystickRadius + stickPosition.y - stickRadius,
+              width: animatedRadius.interpolate({
+                inputRange: [minStickRadius, maxStickRadius],
+                outputRange: [minStickRadius * 2, maxStickRadius * 2],
+              }),
+              height: animatedRadius.interpolate({
+                inputRange: [minStickRadius, maxStickRadius],
+                outputRange: [minStickRadius * 2, maxStickRadius * 2],
+              }),
+              borderRadius: animatedRadius.interpolate({
+                inputRange: [minStickRadius, maxStickRadius],
+                outputRange: [minStickRadius, maxStickRadius],
+              }),
+              transform: [
+                { translateX: animatedPosition.x },
+                { translateY: animatedPosition.y },
+              ],
             },
           ]}
         />
       </View>
       {/* 可选的文本，显示方向 */}
       <Text style={styles.directionText}>
-        X: {stickPosition.x.toFixed(2)}, Y: {stickPosition.y.toFixed(2)}
+        X: {animatedPosition.x._value.toFixed(2)}, Y:{' '}
+        {animatedPosition.y._value.toFixed(2)}
       </Text>
     </View>
   );
@@ -104,15 +132,14 @@ const styles = StyleSheet.create({
   joystickBackground: {
     position: 'relative',
     borderRadius: 100,
-    backgroundColor: '#ddd', // Add background color for visibility
+    backgroundColor: '#ddd', // 背景颜色
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2, // Optional: add a border for visibility
-    borderColor: '#333', // Optional: border color to make it visible
+    borderWidth: 2, // 边框
+    borderColor: '#333', // 边框颜色
   },
   stick: {
     position: 'absolute',
-    borderRadius: 30,
     backgroundColor: '#008CBA', // 摇杆按钮的颜色
   },
   directionText: {
