@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Alert, BackHandler, StyleSheet } from 'react-native';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { createStackNavigator } from '@react-navigation/stack';
-import LoginScreen from '../components/InitialScreen/LoginScreen';
-import RegisterScreen from '../components/InitialScreen/RegisterScreen';
+// import LoginScreen from '../components/InitialScreen/LoginScreen';
+// import RegisterScreen from '../components/InitialScreen/RegisterScreen';
 import OperationScreen from '../components/OperationScreen/OperationScreen';
-import PreLoginScreen from '../components/PreLogin/PreLogin';
+// import PreLoginScreen from '../components/PreLogin/PreLogin';
 import SettingsPage from '../components/SettingPage/SettingsPage'; // 导入设置页面
 import AfterLoginScreen from '../components/AfterLogin/AfterLogin';
-import UserInformation from '../components/UserInformation/UserInformation';
-import ChangePassword from '../components/ChangePassword/ChangePassword';
+// import UserInformation from '../components/UserInformation/UserInformation';
+// import ChangePassword from '../components/ChangePassword/ChangePassword';
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -31,8 +31,8 @@ const App = () => {
   }, []);
 
   return (
-    <Stack.Navigator initialRouteName="PreLogin">
-      <Stack.Screen
+    <Stack.Navigator initialRouteName="AfterLogin">
+      {/* <Stack.Screen
         name="PreLogin"
         component={PreLoginScreen}
         options={{ headerShown: false, gestureEnabled: false }}
@@ -46,7 +46,7 @@ const App = () => {
         name="Register"
         component={RegisterScreen}
         options={{ headerShown: false, gestureEnabled: false }}
-      />
+      /> */}
       <Stack.Screen
         name="AfterLogin"
         component={AfterLoginScreen}
@@ -57,7 +57,7 @@ const App = () => {
         component={OperationScreen}
         options={{ headerShown: false, gestureEnabled: false }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="Settings"
         component={SettingsPage}
         options={{
@@ -65,17 +65,17 @@ const App = () => {
           gestureEnabled: false,
           presentation: 'modal', // 设置为模态框
         }}
-      />
-      <Stack.Screen
+      /> */}
+      {/* <Stack.Screen
         name="UserInformation"
         component={UserInformation}
         options={{ headerShown: false, gestureEnabled: false }}
-      />
-      <Stack.Screen
+      /> */}
+      {/* <Stack.Screen
         name="ChangePassword"
         component={ChangePassword}
         options={{ headerShown: false, gestureEnabled: false }}
-      />
+      /> */}
     </Stack.Navigator>
   );
 };

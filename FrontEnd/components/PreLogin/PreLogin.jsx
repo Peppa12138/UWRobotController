@@ -33,7 +33,6 @@ const PreLoginScreen = () => {
         resizeMode="cover"
       />
 
-      {/* 中间的图片 */}
       <View style={styles.centerImageContainer}>
         <Image
           source={require('./character.png')} // 替换为实际的中间图片链接
@@ -42,7 +41,6 @@ const PreLoginScreen = () => {
         />
       </View>
 
-      {/* 右上角的图片 */}
       <View style={styles.topRightImageContainer}>
         <Image
           source={require('./signet.png')} // 替换为实际的右上角图片链接
@@ -50,9 +48,7 @@ const PreLoginScreen = () => {
           resizeMode="contain"
         />
       </View>
-      {/* 底部文字 */}
       <View style={styles.bottomTextContainer}>
-        {/* <Text style={styles.bottomText} onPress={handlePress}>请先登录后进入</Text> */}
         <Button type="primary" size="large" onPress={handlePress}>
           请先登录后进入
         </Button>

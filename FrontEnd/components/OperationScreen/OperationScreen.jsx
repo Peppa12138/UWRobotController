@@ -6,9 +6,10 @@ import axios from 'axios';
 
 import DirectionPad from '../Operations/DirectionPad';
 import FunctionKeys from '../Operations/FunctionKeys';
-import SettingsButton from '../Operations/SettingButton';
+// import SettingsButton from '../Operations/SettingButton';
 import StatusView from '../Operations/StatusView';
 import VirtualJoystick from '../VirtualJoystick/VirtualJoystick'; // 物理摇杆组件
+import ReturnButton from '../Operations/ReturnButton'; // 返回按钮组件
 
 const ControlPanel = () => {
   const navigation = useNavigation();
@@ -16,7 +17,7 @@ const ControlPanel = () => {
   const [fontSize, setFontSize] = useState(route.params?.fontSize || 14);
   const [controlMode, setControlMode] = useState(
     route.params?.controlMode || 1,
-  ); // Default to virtual keys (1)
+  );
   const [statusData, setStatusData] = useState({});
 
   useEffect(() => {
@@ -71,17 +72,16 @@ const ControlPanel = () => {
         repeat={true}
         resizeMode="cover"
       />
-      {/* 内容区域 */}
       <View style={styles.content}>
         <View style={styles.leftPanel}>
-          {/* <DirectionPad onPress={handleDirectionPress} /> */}
           {/* {renderControl()} */}
           <VirtualJoystick onMove={data => console.log(data)} />
         </View>
         <View style={styles.rightPanel}>
           <FunctionKeys />
         </View>
-        <SettingsButton onPress={handleSettingsPress} />
+        {/* <SettingsButton onPress={handleSettingsPress} /> */}
+        <ReturnButton onPress={() => navigation.navigate('AfterLogin')}/>
         <View style={styles.statusViewContainer}>
           <StatusView fontSize={fontSize} statusData={statusData} />
         </View>

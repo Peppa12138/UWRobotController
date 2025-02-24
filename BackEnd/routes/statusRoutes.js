@@ -5,7 +5,7 @@ const { generateAndStoreStatusData } = require('../controllers/statusController'
 const router = express.Router();
 
 // 每 5 秒生成并存储一次数据
-setInterval(generateAndStoreStatusData, 5000);
+// setInterval(generateAndStoreStatusData, 5000);
 
 // 获取最新状态数据接口
 router.get('/', (req, res) => {

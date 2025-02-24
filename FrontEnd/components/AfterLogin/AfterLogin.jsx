@@ -1,4 +1,4 @@
-// PreLoginScreen.js
+// AfterLoginScreen.js
 import React from 'react';
 import {
   View,
@@ -23,7 +23,6 @@ const AfterLoginScreen = () => {
   };
   return (
     <View style={styles.container}>
-      {/* 背景图片 */}
       <StatusBar hidden={true} />
       <Image
         source={require('./bgi.jpg')} // 替换为实际的背景图片链接
@@ -51,7 +50,6 @@ const AfterLoginScreen = () => {
         <TouchableOpacity onPress={handleConnection} style={styles.bottomText}>
           <Text style={styles.bottomText}>连接设备</Text>
         </TouchableOpacity>
-        <Text style={styles.bottomText} onPress={() => navigation.navigate('UserInformation')}>账号信息</Text>
         <Text style={styles.bottomText} onPress={()=> navigation.navigate('Settings')}>设置</Text>
       </View>
     </View>
