@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, Button, Modal, TextInput, Alert} from 'react-native';
+import {View, Text, Button, Modal, TextInput, Alert, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 
@@ -40,11 +40,18 @@ const UserInformation = () => {
     };
   return (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <TouchableOpacity
+        style={styles.returnButton}
+        onPress={() => navigation.navigate('AfterLogin')}>
+        <Image
+          source={require('../public/Images/return.png')} // 使用相对路径加载图片
+          style={styles.returnButtonImage}
+        />
+      </TouchableOpacity>
       <Text>用户名：{username}</Text>
       <Text>注册时间：{registrationDate}</Text>
       <Button title="修改密码" onPress={() => setModalVisible(true)} />
 
-      {/* 弹框 */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -85,5 +92,25 @@ const UserInformation = () => {
     </View>
   );
 };
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center', // 居中所有内容
+    paddingHorizontal: 20,
+    position: 'relative', // 使返回按钮可以绝对定位
+  },
+  returnButton: {
+    position: 'absolute',
+    top: 20, // 距离顶部
+    left: 20, // 距离左边
+    padding: 10, // 按钮的内边距
+  },
+  returnButtonImage: {
+    width: 25, // 按钮的宽度
+    height: 25, // 按钮的高度
+  },
+});
+
 
 export default UserInformation;

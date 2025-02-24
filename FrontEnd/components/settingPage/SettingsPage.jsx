@@ -67,7 +67,6 @@ const SettingsPage = ({navigation, route}) => {
 
   return (
     <View style={styles.container}>
-      {/* 返回按钮 */}
       <TouchableOpacity style={styles.returnButton} onPress={handleGoBack}>
         <Image
           source={require('../public/Images/return.png')}
@@ -75,7 +74,6 @@ const SettingsPage = ({navigation, route}) => {
         />
       </TouchableOpacity>
 
-      {/* 弹窗内容 */}
       <View style={styles.modalContent}>
         <Text style={styles.label}>字号：</Text>
         <Slider
@@ -116,7 +114,6 @@ const SettingsPage = ({navigation, route}) => {
         />
       </TouchableOpacity>
 
-      {/* Modal for confirming mode change */}
       <Modal
         visible={modalVisible}
         transparent={true}

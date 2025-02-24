@@ -31,7 +31,6 @@ const AfterLoginScreen = () => {
         resizeMode="cover"
       />
 
-      {/* 中间的图片 */}
       <View style={styles.centerImageContainer}>
         <Image
           source={require('./character.png')} // 替换为实际的中间图片链接
@@ -40,7 +39,6 @@ const AfterLoginScreen = () => {
         />
       </View>
 
-      {/* 右上角的图片 */}
       <View style={styles.topRightImageContainer}>
         <Image
           source={require('./signet.png')} // 替换为实际的右上角图片链接
@@ -48,7 +46,7 @@ const AfterLoginScreen = () => {
           resizeMode="contain"
         />
       </View>
-      {/* 底部文字 */}
+
       <View style={styles.bottomTextContainer}>
         <TouchableOpacity onPress={handleConnection} style={styles.bottomText}>
           <Text style={styles.bottomText}>连接设备</Text>
