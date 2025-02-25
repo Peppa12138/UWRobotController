@@ -50,7 +50,11 @@ const AfterLoginScreen = () => {
         <TouchableOpacity onPress={handleConnection} style={styles.bottomText}>
           <Text style={styles.bottomText}>连接设备</Text>
         </TouchableOpacity>
-        <Text style={styles.bottomText} onPress={()=> navigation.navigate('Settings')}>设置</Text>
+        <Text
+          style={styles.bottomText}
+          onPress={() => navigation.navigate('HomeSetting')}>
+          设置
+        </Text>
       </View>
     </View>
   );

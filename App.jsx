@@ -4,13 +4,10 @@ import Router from './FrontEnd/router/router';
 import Toast from 'react-native-toast-message';
 import 'react-native-gesture-handler';
 const App = () => {
-
   return (
     <>
-      <NavigationContainer>
-        <Router />
-      </NavigationContainer>
-      <Toast/>
+      <Router />
+      <Toast />
     </>
   );
 };
