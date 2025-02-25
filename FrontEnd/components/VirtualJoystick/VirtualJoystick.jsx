@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { View, PanResponder, StyleSheet, Text, Animated } from 'react-native';
 
 const VirtualJoystick = ({ onMove }) => {
@@ -6,6 +6,7 @@ const VirtualJoystick = ({ onMove }) => {
   const minStickRadius = 10; // 摇杆按钮最小半径
   const maxStickRadius = 20; // 摇杆按钮最大半径
   const maxDistance = joystickRadius - minStickRadius; // 最大偏移范围
+  const activationDistance = joystickRadius * 2; // 手指离摇杆的最大有效距离
 
   const animatedPosition = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current; // 用于动画的位置
   const animatedRadius = useRef(new Animated.Value(minStickRadius)).current; // 用于动画的半径
@@ -39,6 +40,11 @@ const VirtualJoystick = ({ onMove }) => {
 
           // 计算与原点的距离
           const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+
+          // 如果手指离摇杆中心太远，则忽略此次移动
+          if (distance > activationDistance) {
+            return;
+          }
 
           if (distance <= maxDistance) {
             // 在范围内，直接更新位置和半径
