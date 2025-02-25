@@ -6,7 +6,7 @@ const VirtualJoystick = ({ onMove }) => {
   const minStickRadius = 10; // 摇杆按钮最小半径
   const maxStickRadius = 20; // 摇杆按钮最大半径
   const maxDistance = joystickRadius - minStickRadius; // 最大偏移范围
-  const activationDistance = joystickRadius * 2; // 手指离摇杆的最大有效距离
+  const activationDistance = joystickRadius * 3; // 手指离摇杆的最大有效距离
 
   const animatedPosition = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current; // 用于动画的位置
   const animatedRadius = useRef(new Animated.Value(minStickRadius)).current; // 用于动画的半径
