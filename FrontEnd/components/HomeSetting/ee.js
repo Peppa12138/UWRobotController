@@ -3,36 +3,46 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Dimensions,
   StyleSheet,
   SafeAreaView,
 } from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
-
+const {width, height} = Dimensions.get('window');
 // 画面设置页面
 function ScreenSettings() {
   return (
-    <SafeAreaView style={styles.screenContainer}>
-      <Text style={styles.text}>画面设置内容</Text>
-    </SafeAreaView>
+    <View>
+      <LeftMenu />
+      <View style={styles.screenContainer}>
+        <Text style={styles.text}>画面设置内容</Text>
+      </View>
+    </View>
   );
 }
 
 // 操作设置页面
 function OperationSettings() {
   return (
-    <SafeAreaView style={styles.screenContainer}>
-      <Text style={styles.text}>操作设置内容</Text>
-    </SafeAreaView>
+    <View>
+      <LeftMenu />
+      <View style={styles.screenContainer}>
+        <Text style={styles.text}>操作设置内容</Text>
+      </View>
+    </View>
   );
 }
 
 // 录制设置页面
 function RecordingSettings() {
   return (
-    <SafeAreaView style={styles.screenContainer}>
-      <Text style={styles.text}>录制设置内容</Text>
-    </SafeAreaView>
+    <View>
+      <LeftMenu />
+      <View style={styles.screenContainer}>
+        <Text style={styles.text}>录制设置内容</Text>
+      </View>
+    </View>
   );
 }
 
@@ -61,7 +71,12 @@ function LeftMenu() {
 }
 function Right() {
   return (
-    <Stack.Navigator initialRouteName="画面设置">
+    <Stack.Navigator
+      initialRouteName="画面设置"
+      screenOptions={{
+        animation: 'none', // 禁用跳转动画
+        headerShown: false, // 禁用上边栏
+      }}>
       <Stack.Screen name="画面设置" component={ScreenSettings} />
       <Stack.Screen name="操作设置" component={OperationSettings} />
       <Stack.Screen name="录制设置" component={RecordingSettings} />
@@ -74,7 +89,6 @@ const Stack = createStackNavigator();
 function App() {
   return (
     <View style={styles.appContainer}>
-      <LeftMenu />
       <Right />
     </View>
   );
@@ -87,12 +101,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   leftContainer: {
-    width: 70,
+    width: width / 8,
     backgroundColor: 'red',
     justifyContent: 'space-between',
     paddingTop: 20,
     paddingBottom: 20,
     alignItems: 'center',
+    height: '100%',
   },
   exitText: {
     color: '#fff',
@@ -104,9 +119,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   menuButtonText: {
-    color: '#fff',
     fontSize: 20,
-    marginBottom: 20,
+    marginBottom: 30,
   },
   screenContainer: {
     flex: 1,
