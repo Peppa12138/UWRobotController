@@ -34,6 +34,9 @@ local.properties
 *.keystore
 !debug.keystore
 android/gradle.properties
+android/qemu-system-x86_64.*.log
+
+
 # node.js
 #
 node_modules/
