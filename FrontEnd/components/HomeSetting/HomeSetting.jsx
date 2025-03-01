@@ -9,6 +9,9 @@ import {
   ImageBackground,
 } from 'react-native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
+import DisplayScreen from './Display';
+import ControlsScreen from './Controls';
+import RecordingScreen from './Recording';
 const {width, height} = Dimensions.get('window');
 
 // 自定义抽屉内容组件
@@ -54,25 +57,6 @@ const CustomDrawerContent = ({navigation, state}) => {
   );
 };
 
-// 屏幕组件
-const DisplayScreen = () => (
-  <View style={styles.contentContainer}>
-    <Text style={styles.contentText}>画面设置</Text>
-  </View>
-);
-
-const ControlsScreen = () => (
-  <View style={styles.contentContainer}>
-    <Text style={styles.contentText}>操作设置</Text>
-  </View>
-);
-
-const RecordingScreen = () => (
-  <View style={styles.contentContainer}>
-    <Text style={styles.contentText}>录制设置</Text>
-  </View>
-);
-
 const Drawer = createDrawerNavigator();
 
 export default function App() {
@@ -89,18 +73,19 @@ export default function App() {
         <Drawer.Screen name="Controls" component={ControlsScreen} />
         <Drawer.Screen name="Recording" component={RecordingScreen} />
       </Drawer.Navigator>
-      <Image
-        source={require('../public/Images/circuit.png')} // 替换为你的图片路径
-        style={styles.bottomImage}
-      />
-      <Image
-        source={require('../public/Images/light.png')} // 替换为你的图片路径
-        style={styles.bottomImage2}
-      />
+      <View style={styles.imagesContainer}>
+        <Image
+          source={require('../public/Images/circuit.png')}
+          style={styles.bottomImage}
+        />
+        <Image
+          source={require('../public/Images/light.png')}
+          style={styles.bottomImage2}
+        />
+      </View>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -108,8 +93,8 @@ const styles = StyleSheet.create({
   drawerContainer: {
     flex: 1,
     backgroundColor: '#0d2271',
-    borderRightWidth: 1, // 右侧边框宽度
-    borderRightColor: 'rgba(13, 34, 113, 1)', // 右侧边框颜色，可以自由修改
+    borderRightWidth: 1,
+    borderRightColor: 'rgba(13, 34, 113, 1)',
   },
   exitButton: {
     position: 'absolute',
@@ -132,7 +117,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   navBackgroundImage: {
-    position: 'absolute', // 绝对定位
+    position: 'absolute',
     right: -width / 42,
     height: 60,
     width: width / 6.5,
@@ -140,7 +125,7 @@ const styles = StyleSheet.create({
   navText: {
     color: 'white',
     fontSize: 28,
-    zIndex: 1, // 确保文字在最上层
+    zIndex: 1,
   },
   contentContainer: {
     flex: 1,
@@ -161,25 +146,31 @@ const styles = StyleSheet.create({
     height: 50,
     resizeMode: 'contain',
   },
+  imagesContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 99, // 确保图片在底层
+    pointerEvents: 'none', // 确保图片不拦截点击事件
+  },
   bottomImage: {
-    position: 'absolute', // 绝对定位
+    position: 'absolute',
     left: width / 5.5,
-    bottom: -height / 6.5, // 距离底部 20
-    width: '74%', // 覆盖整个宽度
-    height: 200, // 设置图片高度
-    zIndex: 999, // 确保图片在最上层
-    resizeMode: 'contain', // 保持图片比例
-    opacity: 0.34, // 设置不透明度为
+    bottom: -height / 6.5,
+    width: '74%',
+    height: 200,
+    resizeMode: 'contain',
+    opacity: 0.34,
   },
   bottomImage2: {
-    position: 'absolute', // 绝对定位
+    position: 'absolute',
     left: -width / 3.5,
-    bottom: -height / 5.6, // 距离底部 20
-    width: width * 1.5, // 覆盖整个宽度
-    height: height / 1.8, // 设置图片高度
-    zIndex: 0, // 确保图片在最上层
-    resizeMode: 'contain', // 保持图片比例
-    opacity: 0.25, // 设置不透明度为
-    pointerEvents: 'none', // 不拦截点击事件
+    bottom: -height / 6,
+    width: width * 1.4,
+    height: height / 1.4,
+    resizeMode: 'contain',
+    opacity: 0.25,
   },
 });

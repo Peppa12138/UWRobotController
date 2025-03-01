@@ -3,272 +3,183 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Dimensions,
   StyleSheet,
-  SafeAreaView,
+  Image,
+  Dimensions,
+  ImageBackground,
 } from 'react-native';
-import {createStackNavigator} from '@react-navigation/stack';
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 const {width, height} = Dimensions.get('window');
-// 画面设置页面
-function ScreenSettings() {
-  return (
-    <View>
-      <LeftMenu />
-      <View style={styles.screenContainer}>
-        <Text style={styles.text}>画面设置内容</Text>
-      </View>
-    </View>
-  );
-}
 
-// 操作设置页面
-function OperationSettings() {
-  return (
-    <View>
-      <LeftMenu />
-      <View style={styles.screenContainer}>
-        <Text style={styles.text}>操作设置内容</Text>
-      </View>
-    </View>
-  );
-}
-
-// 录制设置页面
-function RecordingSettings() {
-  return (
-    <View>
-      <LeftMenu />
-      <View style={styles.screenContainer}>
-        <Text style={styles.text}>录制设置内容</Text>
-      </View>
-    </View>
-  );
-}
-
-// 左边菜单部分（包含退出按钮和路由按钮）
-function LeftMenu() {
-  const navigation = useNavigation(); // 获取导航对象
+// 自定义抽屉内容组件
+const CustomDrawerContent = ({navigation, state}) => {
+  const currentRoute = state.routes[state.index]?.name; // 获取当前路由的名称
 
   return (
-    <View style={styles.leftContainer}>
-      <TouchableOpacity onPress={() => console.log('退出')}>
-        <Text style={styles.exitText}>退出</Text>
+    <View style={styles.drawerContainer}>
+      {/* 退出按钮 */}
+      <TouchableOpacity
+        style={styles.exitButton}
+        onPress={() => navigation.navigate('AfterLogin')}>
+        <Image
+          source={require('../public/Images/return.png')}
+          style={styles.returnButtonImage}
+        />
       </TouchableOpacity>
-      <View style={styles.menuButtons}>
-        <TouchableOpacity onPress={() => navigation.navigate('画面设置')}>
-          <Text style={styles.menuButtonText}>1</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('操作设置')}>
-          <Text style={styles.menuButtonText}>2</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('录制设置')}>
-          <Text style={styles.menuButtonText}>3</Text>
-        </TouchableOpacity>
+
+      {/* 导航项 */}
+      <View style={styles.navItems}>
+        {['Display', 'Controls', 'Recording'].map(routeName => {
+          const isSelected = currentRoute === routeName; // 判断当前路由是否是该项
+          return (
+            <TouchableOpacity
+              key={routeName}
+              style={styles.navItem}
+              onPress={() => navigation.navigate(routeName)}>
+              <ImageBackground
+                source={
+                  isSelected ? require('../public/Images/wave.png') : null
+                } // 选中时使用背景图片
+                style={styles.navBackgroundImage}></ImageBackground>
+              <Text style={styles.navText}>
+                {routeName === 'Display' && '画面'}
+                {routeName === 'Controls' && '操作'}
+                {routeName === 'Recording' && '录制'}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );
-}
-function Right() {
-  return (
-    <Stack.Navigator
-      initialRouteName="画面设置"
-      screenOptions={{
-        animation: 'none', // 禁用跳转动画
-        headerShown: false, // 禁用上边栏
-      }}>
-      <Stack.Screen name="画面设置" component={ScreenSettings} />
-      <Stack.Screen name="操作设置" component={OperationSettings} />
-      <Stack.Screen name="录制设置" component={RecordingSettings} />
-    </Stack.Navigator>
-  );
-}
+};
 
-const Stack = createStackNavigator();
+// 屏幕组件
+const DisplayScreen = () => (
+  <View style={styles.contentContainer}>
+    <Text style={styles.contentText}>画面设置</Text>
+  </View>
+);
 
-function App() {
+const ControlsScreen = () => (
+  <View style={styles.contentContainer}>
+    <Text style={styles.contentText}>操作设置</Text>
+  </View>
+);
+
+const RecordingScreen = () => (
+  <View style={styles.contentContainer}>
+    <Text style={styles.contentText}>录制设置</Text>
+  </View>
+);
+
+const Drawer = createDrawerNavigator();
+
+export default function App() {
   return (
-    <View style={styles.appContainer}>
-      <Right />
+    <View style={styles.container}>
+      <Drawer.Navigator
+        drawerContent={props => <CustomDrawerContent {...props} />}
+        screenOptions={{
+          drawerType: 'permanent', // 设置抽屉一直存在
+          drawerStyle: styles.drawerStyle,
+          headerShown: false,
+        }}>
+        <Drawer.Screen name="Display" component={DisplayScreen} />
+        <Drawer.Screen name="Controls" component={ControlsScreen} />
+        <Drawer.Screen name="Recording" component={RecordingScreen} />
+      </Drawer.Navigator>
+      <Image
+        source={require('../public/Images/circuit.png')} // 替换为你的图片路径
+        style={styles.bottomImage}
+      />
+      <Image
+        source={require('../public/Images/light.png')} // 替换为你的图片路径
+        style={styles.bottomImage2}
+      />
     </View>
   );
 }
 
-// 样式部分
 const styles = StyleSheet.create({
-  appContainer: {
+  container: {
     flex: 1,
-    flexDirection: 'row',
   },
-  leftContainer: {
-    width: width / 8,
-    backgroundColor: 'red',
-    justifyContent: 'space-between',
-    paddingTop: 20,
-    paddingBottom: 20,
-    alignItems: 'center',
-    height: '100%',
+  drawerContainer: {
+    flex: 1,
+    backgroundColor: '#0d2271',
+    borderRightWidth: 1, // 右侧边框宽度
+    borderRightColor: 'rgba(13, 34, 113, 1)', // 右侧边框颜色，可以自由修改
+  },
+  exitButton: {
+    position: 'absolute',
+    top: 20,
+    left: width / 21,
+    zIndex: 1,
   },
   exitText: {
-    color: '#fff',
-    fontSize: 18,
-    marginBottom: 20,
+    fontSize: 32,
+    color: 'white',
   },
-  menuButtons: {
-    justifyContent: 'center',
-    flex: 1,
-  },
-  menuButtonText: {
-    fontSize: 20,
-    marginBottom: 30,
-  },
-  screenContainer: {
+  navItems: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f4f4f4',
   },
-  text: {
-    fontSize: 18,
-    color: '#333',
+  navItem: {
+    marginVertical: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  navBackgroundImage: {
+    position: 'absolute', // 绝对定位
+    right: -width / 42,
+    height: 60,
+    width: width / 6.5,
+  },
+  navText: {
+    color: 'white',
+    fontSize: 28,
+    zIndex: 1, // 确保文字在最上层
+  },
+  contentContainer: {
+    flex: 1,
+    backgroundColor: '#0d2271',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contentText: {
+    color: 'white',
+    fontSize: 32,
+  },
+  drawerStyle: {
+    backgroundColor: '#0d2271',
+    width: width / 6.5,
+  },
+  returnButtonImage: {
+    width: 50,
+    height: 50,
+    resizeMode: 'contain',
+  },
+  bottomImage: {
+    position: 'absolute', // 绝对定位
+    left: width / 5.5,
+    bottom: -height / 6.5, // 距离底部 20
+    width: '74%', // 覆盖整个宽度
+    height: 200, // 设置图片高度
+    zIndex: 999, // 确保图片在最上层
+    resizeMode: 'contain', // 保持图片比例
+    opacity: 0.34, // 设置不透明度为
+  },
+  bottomImage2: {
+    position: 'absolute', // 绝对定位
+    left: -width / 3.5,
+    bottom: -height / 5.6, // 距离底部 20
+    width: width * 1.5, // 覆盖整个宽度
+    height: height / 1.8, // 设置图片高度
+    zIndex: 0, // 确保图片在最上层
+    resizeMode: 'contain', // 保持图片比例
+    opacity: 0.25, // 设置不透明度为
+    pointerEvents: 'none', // 不拦截点击事件
   },
 });
-
-// import React, {useState, useEffect} from 'react';
-// import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
-// import Slider from '@react-native-community/slider';
-
-// const App = ({navigation, route}) => {
-//   const initialFontSize = route.params?.fontSize || 14; // 从导航参数获取初始字体大小
-//   const [fontSize, setFontSize] = useState(initialFontSize); // 字体大小状态
-
-//   useEffect(() => {
-//     // 监听 route.params 的变化，并在变化时更新 fontSize
-//     if (route.params?.fontSize) {
-//       setFontSize(route.params.fontSize);
-//     }
-//   }, [route.params?.fontSize]);
-
-//   // 处理字体大小变化
-//   const handleFontSizeChange = value => {
-//     setFontSize(value); // 更新字体大小状态
-//     navigation.setParams({fontSize: value}); // 更新导航参数
-//   };
-
-//   // 返回操作页面
-//   const handleGoBack = () => {
-//     navigation.navigate('OperationScreen', {fontSize}); // 携带最新的 fontSize 返回
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       {/* 列框部分（左侧） */}
-//       <View style={styles.columnContainer}>
-//         {/* 返回按钮 */}
-//         <TouchableOpacity style={styles.returnButton} onPress={handleGoBack}>
-//           <Image
-//             source={require('../public/Images/return.png')}
-//             style={styles.returnButtonImage}
-//           />
-//         </TouchableOpacity>
-
-//         {/* 标签部分 */}
-
-//         <Text style={styles.label}>画面</Text>
-//         <Text style={styles.label}>操作</Text>
-
-//         {/* 字号调整部分 */}
-//         <View style={styles.fontSizeContainer}>
-//           <Text style={styles.fontSizeLabel}>字号：</Text>
-//           <Slider
-//             style={styles.slider}
-//             minimumValue={10}
-//             maximumValue={30}
-//             step={1}
-//             value={fontSize}
-//             onValueChange={handleFontSizeChange}
-//             // 自定义滑动条样式
-//             thumbTintColor="#FF5722" // 滑块颜色
-//             minimumTrackTintColor="#FF5722" // 已滑动部分轨道颜色
-//             maximumTrackTintColor="#FFFFFF" // 未滑动部分轨道颜色
-//             trackStyle={styles.trackStyle} // 轨道样式
-//             thumbStyle={styles.thumbStyle} // 滑块样式
-//           />
-//           <Text style={[styles.label, {fontSize}]}>
-//             当前字体大小: {fontSize}
-//           </Text>
-//         </View>
-//         <TouchableOpacity
-//           style={styles.settingItem}
-//           onPress={() => navigation.navigate('PreLogin')}>
-//           <Text style={styles.label}>登出</Text>
-//         </TouchableOpacity>
-//       </View>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#1976D2',
-//     padding: 20,
-//   },
-//   columnContainer: {
-//     flexDirection: 'column',
-//     alignItems: 'flex-start', // 确保所有内容靠左对齐
-//     justifyContent: 'flex-start',
-//   },
-//   returnButton: {
-//     width: 80,
-//     height: 60,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginBottom: 20,
-//   },
-//   returnButtonImage: {
-//     width: 40,
-//     height: 40,
-//     resizeMode: 'contain',
-//   },
-//   label: {
-//     fontSize: 25,
-//     color: '#fff',
-//     marginBottom: 20,
-//     textAlign: 'left',
-//   },
-//   fontSizeContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     marginBottom: 20,
-//   },
-//   fontSizeLabel: {
-//     fontSize: 25,
-//     color: '#fff',
-//     marginRight: 10,
-//   },
-//   slider: {
-//     width: 200,
-//     height: 40, // 增加滑动条高度
-//   },
-//   trackStyle: {
-//     height: 4, // 轨道高度
-//     borderRadius: 2, // 轨道圆角
-//     shadowColor: '#000',
-//     shadowOffset: {width: 0, height: 2},
-//     shadowOpacity: 0.2,
-//     shadowRadius: 2,
-//   },
-//   thumbStyle: {
-//     width: 20,
-//     height: 20,
-//     borderRadius: 10, // 滑块圆角
-//     backgroundColor: '#FF5722', // 滑块背景色
-//     shadowColor: '#FF5722',
-//     shadowOffset: {width: 0, height: 2},
-//     shadowOpacity: 0.5,
-//     shadowRadius: 2,
-//   },
-// });
-
-export default App;
