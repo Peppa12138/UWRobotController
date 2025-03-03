@@ -9,6 +9,8 @@ import FunctionKeys from '../Operations/FunctionKeys';
 import StatusView from '../Operations/StatusView';
 import VirtualJoystick from '../VirtualJoystick/VirtualJoystick'; // 物理摇杆组件
 import ReturnButton from '../Operations/ReturnButton'; // 返回按钮组件
+import NetworkStatus from '../Operations/NetworkStatus'; // 网络状态组件
+import VideoStats from '../Operations/VideoStats'; // 视频状态组件
 
 const ControlPanel = () => {
   const navigation = useNavigation();
@@ -126,6 +128,12 @@ const ControlPanel = () => {
           <StatusView fontSize={fontSize} statusData={statusData} />
         </View>
       </View>
+
+      {/* 网络状态监控 */}
+      <NetworkStatus />
+
+      {/* 视频状态监控 */}
+      <VideoStats />
 
       {/* 静音按钮 */}
       <TouchableOpacity style={styles.muteButton} onPress={toggleMute}>
