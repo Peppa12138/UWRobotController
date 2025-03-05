@@ -119,11 +119,11 @@ const VirtualJoystick = ({ onMove }) => {
           ]}
         />
       </View>
-      {/* 可选的文本，显示方向 */}
+      {/* 可选的文本，显示方向
       <Text style={styles.directionText}>
         X: {animatedPosition.x._value.toFixed(2)}, Y:{' '}
         {animatedPosition.y._value.toFixed(2)}
-      </Text>
+      </Text> */}
     </View>
   );
 };
@@ -132,8 +132,8 @@ const styles = StyleSheet.create({
   joystickContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative',
-    marginTop: 100, // Optional, make sure it's not off-screen
+    position: 'absolute',
+    marginTop: -150, // Optional, make sure it's not off-screen
   },
   joystickBackground: {
     position: 'relative',
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ddd', // 背景颜色
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2, // 边框
+    borderWidth: 0, // 边框
     borderColor: '#333', // 边框颜色
   },
   stick: {

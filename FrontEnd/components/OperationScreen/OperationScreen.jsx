@@ -116,7 +116,7 @@ const ControlPanel = () => {
           {/* 根据操作模式显示虚拟摇杆 */}
           {controlMode === 1 && (
             <VirtualJoystick
-              onMove={data => console.log(data)}
+              // onMove={data => console.log(data)}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
