@@ -132,7 +132,7 @@ const ControlPanel = () => {
         <View style={styles.leftPanel}>
           {controlMode === 1 && (
             <VirtualJoystick
-              onMove={data => console.log(data)}
+              // onMove={data => console.log(data)}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}

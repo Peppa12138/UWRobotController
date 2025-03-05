@@ -6,7 +6,7 @@ const statusRoutes = require('./routes/statusRoutes'); // 引入 statusRoutes
 const db = require('./config/db');
 
 const app = express();
-
+ 
 // 中间件配置
 app.use(cors()); // 启用 CORS 中间件
 app.use(bodyParser.json());
