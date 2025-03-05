@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Video from 'react-native-video';
+
+// 获取屏幕宽度和高度
+const { width, height } = Dimensions.get('window');
 
 const VideoStats = () => {
   const [progress, setProgress] = useState(0); // 当前播放进度
@@ -26,8 +29,8 @@ const VideoStats = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 230,  // 距离底部20px
-    left: 700,    // 距离左侧20px
+    bottom: height * 0.55,  // 设置为屏幕高度的10%
+    left: width * 0.77, // 使其水平居中，减去大约一半的宽度 (200px 是假定的容器宽度)
     zIndex: 10,  // 确保它不会被其他元素遮挡
     backgroundColor: 'rgba(0, 0, 0, 0.6)', // 设置背景颜色
     padding: 10,

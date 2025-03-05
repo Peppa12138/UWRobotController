@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
 import Video from 'react-native-video';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
@@ -7,10 +7,12 @@ import axios from 'axios';
 import DirectionPad from '../Operations/DirectionPad';
 import FunctionKeys from '../Operations/FunctionKeys';
 import StatusView from '../Operations/StatusView';
-import VirtualJoystick from '../VirtualJoystick/VirtualJoystick'; // 物理摇杆组件
-import ReturnButton from '../Operations/ReturnButton'; // 返回按钮组件
-import NetworkStatus from '../Operations/NetworkStatus'; // 网络状态组件
-import VideoStats from '../Operations/VideoStats'; // 视频状态组件
+import VirtualJoystick from '../VirtualJoystick/VirtualJoystick';
+import ReturnButton from '../Operations/ReturnButton';
+import NetworkStatus from '../Operations/NetworkStatus';
+import VideoStats from '../Operations/VideoStats';
+
+const { width, height } = Dimensions.get('window');
 
 const ControlPanel = () => {
   const navigation = useNavigation();
@@ -18,9 +20,9 @@ const ControlPanel = () => {
   const [fontSize, setFontSize] = useState(route.params?.fontSize || 14);
   const [controlMode, setControlMode] = useState(route.params?.controlMode || 1);
   const [statusData, setStatusData] = useState({});
-  const [activeTouchId, setActiveTouchId] = useState(null);  // 用于标记哪个手指在控制摇杆
-  const [isMuted, setIsMuted] = useState(false);  // 用于控制视频是否静音
-  const [isPaused, setIsPaused] = useState(false);  // 用于控制视频是否暂停
+  const [activeTouchId, setActiveTouchId] = useState(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     const fetchStatusData = async () => {
@@ -47,10 +49,6 @@ const ControlPanel = () => {
     }, [route.params?.fontSize, route.params?.controlMode]),
   );
 
-  const handleSettingsPress = () => {
-    navigation.navigate('Settings', { fontSize, controlMode });
-  };
-
   const handleDirectionPress = direction => {
     console.log(`Pressed ${direction} button`);
   };
@@ -68,7 +66,7 @@ const ControlPanel = () => {
         const offsetY = gestureState.moveY - pageY;
         const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
         
-        const maxDistance = joystickElement.clientWidth / 2;
+        const maxDistance = width / 2;
         if (distance <= maxDistance) {
           // Update joystick position here
         }
@@ -76,9 +74,10 @@ const ControlPanel = () => {
     }
   };
 
+
   const handleTouchEnd = (e) => {
     if (e.nativeEvent.touchId === activeTouchId) {
-      setActiveTouchId(null);  // 清除触摸状态
+      setActiveTouchId(null);
     }
   };
 
@@ -86,39 +85,32 @@ const ControlPanel = () => {
     setIsMuted(prevState => !prevState);
   };
 
-  // 切换视频暂停状态
   const handleReturnButtonPress = () => {
-    setIsPaused(true);  // 暂停视频
+    setIsPaused(true);
     navigation.navigate('AfterLogin');
-  };
-
-  const renderControl = () => {
-    if (controlMode === 1) {
-      return <DirectionPad onPress={handleDirectionPress} />;
-    } else if (controlMode === 2) {
-      return <VirtualJoystick onMove={data => console.log(data)} />;
-    }
   };
 
   return (
     <View style={styles.container}>
-      {/* 视频背景 */}
       <Video
         source={require('../public/Images/background.mp4')}
         style={StyleSheet.absoluteFill}
         muted={isMuted}
-        paused={isPaused}  // 根据 isPaused 控制视频播放
+        paused={isPaused}
         repeat={true}
         resizeMode="cover"
       />
       <View style={styles.content}>
         <View style={styles.leftPanel}>
-          <VirtualJoystick
-            onMove={data => console.log(data)}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          />
+          {/* 根据操作模式显示虚拟摇杆 */}
+          {controlMode === 1 && (
+            <VirtualJoystick
+              onMove={data => console.log(data)}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            />
+          )}
         </View>
         <View style={styles.rightPanel}>
           <FunctionKeys />
@@ -129,13 +121,9 @@ const ControlPanel = () => {
         </View>
       </View>
 
-      {/* 网络状态监控 */}
       <NetworkStatus />
-
-      {/* 视频状态监控 */}
       <VideoStats />
 
-      {/* 静音按钮 */}
       <TouchableOpacity style={styles.muteButton} onPress={toggleMute}>
         <Image
           source={isMuted ? require('../public/Images/mute_icon.png') : require('../public/Images/unmute_icon.png')}
@@ -155,30 +143,34 @@ const styles = StyleSheet.create({
   },
   leftPanel: {
     position: 'absolute',
-    bottom: 20,
-    left: 100,
+    bottom: height * 0.05,
+    left: width * 0.1,
   },
   rightPanel: {
     position: 'absolute',
-    bottom: 20,
-    right: 80,
+    bottom: height * 0.05,
+    right: width * 0.1,
   },
   statusViewContainer: {
     position: 'absolute',
-    top: 20,
-    left: 20,
+    top: height * 0.03,
+    left: width * 0.05,
     zIndex: 10,
   },
   muteButton: {
     position: 'absolute',
-    top: 2,
-    right: 40,
-    zIndex: 20,
+    top: height * 0.003,
+    right: width * 0.09,
+    zIndex: 10,
     padding: 10,
+    width: width * 0.01, // 设置按钮的宽度
+    height: width * 0.1, // 设置按钮的高度
+    borderRadius: width * 0.12 / 2, // 使按钮圆形
   },
+  
   muteIcon: {
-    width: 30,
-    height: 30,
+    width: width * 0.04,  // 设置图标的宽度
+    height: width * 0.04, // 设置图标的高度
   },
 });
 
