@@ -36,6 +36,10 @@ const ControlPanel = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
+  // 新增用于视频播放数据的 state
+  const [videoProgress, setVideoProgress] = useState(0);
+  const [videoFrameRate, setVideoFrameRate] = useState(null);
+
   useEffect(() => {
     const fetchStatusData = async () => {
       try {
@@ -101,6 +105,17 @@ const ControlPanel = () => {
     navigation.navigate('AfterLogin');
   };
 
+  // 新增：处理视频进度更新
+  const handleVideoProgress = data => {
+    setVideoProgress(data.currentTime);
+  };
+
+  // 新增：处理视频加载完成事件
+  const handleVideoLoad = data => {
+    // 此处仅示例如何计算帧率（不是真正的帧率）
+    setVideoFrameRate(data.naturalSize.width / data.naturalSize.height);
+  };
+
   return (
     <View style={styles.container}>
       <Video
@@ -110,10 +125,11 @@ const ControlPanel = () => {
         paused={isPaused}
         repeat={true}
         resizeMode="cover"
+        onLoad={handleVideoLoad}       // 添加 onLoad 事件
+        onProgress={handleVideoProgress} // 添加 onProgress 事件
       />
       <View style={styles.content}>
         <View style={styles.leftPanel}>
-          {/* 根据操作模式显示虚拟摇杆 */}
           {controlMode === 1 && (
             <VirtualJoystick
               onMove={data => console.log(data)}
@@ -133,7 +149,8 @@ const ControlPanel = () => {
       </View>
 
       <NetworkStatus />
-      <VideoStats />
+      {/* 将视频数据传递给 VideoStats 组件 */}
+      <VideoStats progress={videoProgress} frameRate={videoFrameRate} />
 
       <TouchableOpacity style={styles.muteButton} onPress={toggleMute}>
         <Image
@@ -174,18 +191,17 @@ const styles = StyleSheet.create({
   },
   muteButton: {
     position: 'absolute',
-    top: height * 0.003,
+    top: height * 0.002,
     right: width * 0.09,
     zIndex: 10,
     padding: 10,
-    width: width * 0.01, // 设置按钮的宽度
-    height: width * 0.1, // 设置按钮的高度
-    borderRadius: (width * 0.12) / 2, // 使按钮圆形
+    width: width * 0.01,
+    height: width * 0.1,
+    borderRadius: (width * 0.12) / 2,
   },
-
   muteIcon: {
-    width: width * 0.04, // 设置图标的宽度
-    height: width * 0.04, // 设置图标的高度
+    width: width * 0.03,
+    height: width * 0.03,
   },
 });
 
