@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 
 // 获取设备的宽度和高度
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const NetworkStatus = () => {
   const [networkType, setNetworkType] = useState('');
@@ -31,8 +31,8 @@ const NetworkStatus = () => {
 const styles = StyleSheet.create({
   networkStatus: {
     position: 'absolute',
-    top: height * 0.12, // 距离顶部 5% 的高度
-    right: width * 0.025, // 距离右侧 5% 的宽度
+    top: height * 0.15, // 距离顶部 5% 的高度
+    right: width * 0.02, // 距离右侧 5% 的宽度
     zIndex: 20, // 确保它在其他元素之上
     backgroundColor: 'rgba(0, 0, 0, 0.6)', // 设置背景颜色让它更清晰
     padding: 10,
