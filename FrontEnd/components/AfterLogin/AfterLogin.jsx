@@ -25,7 +25,7 @@ const AfterLoginScreen = () => {
     <View style={styles.container}>
       <StatusBar hidden={true} />
       <Image
-        source={require('./bgi.jpg')} // 替换为实际的背景图片链接
+        source={require('../public/Images/b1.png')} // 替换为实际的背景图片链接
         style={[styles.backgroundImage, {width, heights}]}
         resizeMode="cover"
       />

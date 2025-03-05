@@ -6836,7 +6836,7 @@ react-native-video@^6.10.1:
   resolved "https://mirrors.cloud.tencent.com/npm/react-native-video/-/react-native-video-6.10.1.tgz"
   integrity sha512-sXTD3yvsOi3MWjdI5uZFxOpiFcYzHT6aUpJtY2hIkffFt6QefL2zJAANzTboFTyt18J1LfL0cSQSLoJzXDFedQ==
 
-react-native@*, react-native@>=0.42.0, react-native@>=0.57, react-native@>=0.59, react-native@>=0.63.2, react-native@>=0.64.0, react-native@>=0.64.1, react-native@>0.50.0, react-native@0.76.6:
+react-native@0.76.6:
   version "0.76.6"
   resolved "https://registry.npmmirror.com/react-native/-/react-native-0.76.6.tgz"
   integrity sha512-AsRi+ud6v6ADH7ZtSOY42kRB4nbM0KtSu450pGO4pDudl4AEK/AF96ai88snb2/VJJSGGa/49QyJVFXxz/qoFg==

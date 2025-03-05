@@ -1,7 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+} from 'react-native';
 import Video from 'react-native-video';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import {
+  useNavigation,
+  useRoute,
+  useFocusEffect,
+} from '@react-navigation/native';
 import axios from 'axios';
 
 import DirectionPad from '../Operations/DirectionPad';
@@ -12,13 +22,15 @@ import ReturnButton from '../Operations/ReturnButton';
 import NetworkStatus from '../Operations/NetworkStatus';
 import VideoStats from '../Operations/VideoStats';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const ControlPanel = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const [fontSize, setFontSize] = useState(route.params?.fontSize || 14);
-  const [controlMode, setControlMode] = useState(route.params?.controlMode || 1);
+  const [controlMode, setControlMode] = useState(
+    route.params?.controlMode || 1,
+  );
   const [statusData, setStatusData] = useState({});
   const [activeTouchId, setActiveTouchId] = useState(null);
   const [isMuted, setIsMuted] = useState(false);
@@ -53,7 +65,7 @@ const ControlPanel = () => {
     console.log(`Pressed ${direction} button`);
   };
 
-  const handleTouchStart = (e) => {
+  const handleTouchStart = e => {
     const touchId = e.nativeEvent.touchId;
     setActiveTouchId(touchId);
   };
@@ -65,7 +77,7 @@ const ControlPanel = () => {
         const offsetX = gestureState.moveX - pageX;
         const offsetY = gestureState.moveY - pageY;
         const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-        
+
         const maxDistance = width / 2;
         if (distance <= maxDistance) {
           // Update joystick position here
@@ -74,8 +86,7 @@ const ControlPanel = () => {
     }
   };
 
-
-  const handleTouchEnd = (e) => {
+  const handleTouchEnd = e => {
     if (e.nativeEvent.touchId === activeTouchId) {
       setActiveTouchId(null);
     }
@@ -93,7 +104,7 @@ const ControlPanel = () => {
   return (
     <View style={styles.container}>
       <Video
-        source={require('../public/Images/background.mp4')}
+        source={require('../public/Videos/background.mp4')}
         style={StyleSheet.absoluteFill}
         muted={isMuted}
         paused={isPaused}
@@ -126,7 +137,11 @@ const ControlPanel = () => {
 
       <TouchableOpacity style={styles.muteButton} onPress={toggleMute}>
         <Image
-          source={isMuted ? require('../public/Images/mute_icon.png') : require('../public/Images/unmute_icon.png')}
+          source={
+            isMuted
+              ? require('../public/Images/mute_icon.png')
+              : require('../public/Images/unmute_icon.png')
+          }
           style={styles.muteIcon}
         />
       </TouchableOpacity>
@@ -165,11 +180,11 @@ const styles = StyleSheet.create({
     padding: 10,
     width: width * 0.01, // 设置按钮的宽度
     height: width * 0.1, // 设置按钮的高度
-    borderRadius: width * 0.12 / 2, // 使按钮圆形
+    borderRadius: (width * 0.12) / 2, // 使按钮圆形
   },
-  
+
   muteIcon: {
-    width: width * 0.04,  // 设置图标的宽度
+    width: width * 0.04, // 设置图标的宽度
     height: width * 0.04, // 设置图标的高度
   },
 });
