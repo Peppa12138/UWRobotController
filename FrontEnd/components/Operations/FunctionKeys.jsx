@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   skillButton: {
-    width: 90,
-    height: 90,
+    width: 70,
+    height: 70,
     backgroundColor: '#008CBA',
     justifyContent: 'center',
     alignItems: 'center',
