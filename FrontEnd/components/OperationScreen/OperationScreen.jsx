@@ -14,7 +14,7 @@ import {
 } from '@react-navigation/native';
 import axios from 'axios';
 
-import DirectionPad from '../Operations/DirectionPad';
+
 import FunctionKeys from '../Operations/FunctionKeys';
 import StatusView from '../Operations/StatusView';
 import VirtualJoystick from '../VirtualJoystick/VirtualJoystick';
