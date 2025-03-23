@@ -7,7 +7,9 @@ import {
   ImageBackground,
   Dimensions,
 } from 'react-native';
-const {width, height} = Dimensions.get('window');
+
+const { width, height } = Dimensions.get('window');
+
 const FunctionKeys = () => {
   // 可以扩展为执行具体命令的函数
   const handleSkillButtonPress = command => {
@@ -17,22 +19,16 @@ const FunctionKeys = () => {
 
   return (
     <View style={styles.skillKeysContainer}>
-      <TouchableOpacity
-        style={[styles.skillButton, styles.skillButtonLeft]}
-        onPress={() => handleSkillButtonPress('抓取')}>
-        <ImageBackground
-          source={require('../public/Images/layDown.png')}
-          style={styles.buttonBackground}
-          resizeMode="contain"></ImageBackground>
-        <Text style={styles.buttonText}>抓取</Text>
-      </TouchableOpacity>
+      {/* 只保留“放下”键 */}
       <TouchableOpacity
         style={[styles.skillButton, styles.skillButtonRight]}
-        onPress={() => handleSkillButtonPress('放下')}>
+        onPress={() => handleSkillButtonPress('放下')}
+      >
         <ImageBackground
           source={require('../public/Images/grab.png')}
           style={styles.buttonBackgroundGrab}
-          resizeMode="contain"></ImageBackground>
+          resizeMode="contain"
+        />
         <Text style={styles.buttonText}>放下</Text>
       </TouchableOpacity>
     </View>
@@ -56,11 +52,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     overflow: 'hidden',
   },
-  skillButtonLeft: {
-    position: 'absolute',
-    bottom: 5,
-    right: 50, // 调整位置
-  },
   skillButtonRight: {
     position: 'absolute',
     bottom: 100,
@@ -71,16 +62,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     bottom: 25,
     fontWeight: 'bold',
-  },
-  buttonBackground: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 250,
-    height: 250,
-    bottom: 85,
-    right: 15,
-    zIndex: -1,
   },
   buttonBackgroundGrab: {
     flex: 1,

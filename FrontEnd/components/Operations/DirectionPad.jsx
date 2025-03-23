@@ -1,95 +1,70 @@
 import React from 'react';
-import { TouchableOpacity, View, StyleSheet, Image } from 'react-native';
+import { TouchableOpacity, View, StyleSheet, Image, Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window'); // 获取屏幕宽度和高度
 
 const DirectionPad = ({ onPress }) => {
   return (
     <View style={styles.directionPad}>
       {/* 上按钮 */}
-      <TouchableOpacity
-        style={[styles.button, styles.upButton]}
-        onPress={() => onPress('up')}
-      >
-        <Image
-          source={require('../public/Images/up.png')}
-          style={styles.buttonImage}
-        />
-      </TouchableOpacity>
-
-      {/* 中间行（左和右按钮） */}
-      <View style={styles.middleRow}>
+      <View style={styles.upButtonContainer}>
         <TouchableOpacity
-          style={[styles.button, styles.leftButton]}
-          onPress={() => onPress('left')}
+          style={[styles.button, styles.upButton]}
+          onPress={() => onPress('up')}
         >
           <Image
-            source={require('../public/Images/left.png')}
-            style={styles.buttonImage}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.rightButton]}
-          onPress={() => onPress('right')}
-        >
-          <Image
-            source={require('../public/Images/right.png')}
+            source={require('../public/Images/up.png')}
             style={styles.buttonImage}
           />
         </TouchableOpacity>
       </View>
 
       {/* 下按钮 */}
-      <TouchableOpacity
-        style={[styles.button, styles.downButton]}
-        onPress={() => onPress('down')}
-      >
-        <Image
-          source={require('../public/Images/down.png')}
-          style={styles.buttonImage}
-        />
-      </TouchableOpacity>
+      <View style={styles.downButtonContainer}>
+        <TouchableOpacity
+          style={[styles.button, styles.downButton]}
+          onPress={() => onPress('down')}
+        >
+          <Image
+            source={require('../public/Images/down.png')}
+            style={styles.buttonImage}
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   directionPad: {
-    alignItems: 'center',
-    marginTop: -150, // 将整个方向键往上移动
+    flex: 1,
+    position: 'relative', // 设置为相对定位，以便子元素可以使用绝对定位
   },
   button: {
-    width: 60,
-    height: 60,
-    borderRadius: 30, // 按钮为圆形
+    width: width * 0.07, // 使用屏幕宽度的 7% 作为按钮宽度
+    height: width * 0.07, // 使用屏幕宽度的 7% 作为按钮高度
+    borderRadius: width * 0.035, // 按钮为圆形，半径为宽度的一半
     backgroundColor: '#f5f5f5', // 按钮背景色
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 0, // 缩小按键之间的距离
     borderWidth: 2, // 添加外边框宽度
     borderColor: '#000', // 外边框颜色
     borderStyle: 'solid', // 外边框样式（实线）
   },
   buttonImage: {
-    width: 40, // 图片宽度
-    height: 40, // 图片高度
+    width: width * 0.05, // 使用屏幕宽度的 5% 作为图片宽度
+    height: width * 0.05, // 使用屏幕宽度的 5% 作为图片高度
     resizeMode: 'contain', // 保持图片比例
   },
-  upButton: {
-    alignSelf: 'center',
-    marginBottom: 0, // 将上按键往下移
+  upButtonContainer: {
+    position: 'absolute', // 使用绝对定位
+    top: height * 0.66, // 距离顶部 40% 的高度
+    left: width * 0.75, // 距离左侧 30% 的宽度
   },
-  downButton: {
-    alignSelf: 'center',
-    marginTop: 0, // 将下按键往上移
-  },
-  middleRow: {
-    flexDirection: 'row',
-    justifyContent: 'center', // 确保左右按钮水平居中
-  },
-  leftButton: {
-    marginRight: 30, // 增加右边距，使左键往左移动
-  },
-  rightButton: {
-    marginLeft: 30, // 增加左边距，使右键往右移动
+  downButtonContainer: {
+    position: 'absolute', // 使用绝对定位
+    top: height * 0.84, // 距离顶部 50% 的高度
+    right: width * 0.18, // 距离右侧 30% 的宽度
   },
 });
 

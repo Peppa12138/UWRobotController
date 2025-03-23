@@ -21,6 +21,7 @@ import VirtualJoystick from '../VirtualJoystick/VirtualJoystick';
 import ReturnButton from '../Operations/ReturnButton';
 import NetworkStatus from '../Operations/NetworkStatus';
 import VideoStats from '../Operations/VideoStats';
+import DirectionPad from '../Operations/DirectionPad'
 
 const {width, height} = Dimensions.get('window');
 
@@ -142,6 +143,7 @@ const ControlPanel = () => {
         <View style={styles.rightPanel}>
           <FunctionKeys />
         </View>
+        <DirectionPad onPress={handleDirectionPress} />
         <ReturnButton onPress={handleReturnButtonPress} />
         <View style={styles.statusViewContainer}>
           <StatusView fontSize={fontSize} statusData={statusData} />
