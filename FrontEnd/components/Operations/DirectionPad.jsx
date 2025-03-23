@@ -58,8 +58,8 @@ const styles = StyleSheet.create({
   },
   upButtonContainer: {
     position: 'absolute', // 使用绝对定位
-    top: height * 0.66, // 距离顶部 40% 的高度
-    left: width * 0.75, // 距离左侧 30% 的宽度
+    top: height * 0.66, //
+    left: width * 0.75, // 
   },
   downButtonContainer: {
     position: 'absolute', // 使用绝对定位
