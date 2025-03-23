@@ -29,7 +29,6 @@ const FunctionKeys = () => {
           style={styles.buttonBackgroundGrab}
           resizeMode="contain"
         />
-        <Text style={styles.buttonText}>放下</Text>
       </TouchableOpacity>
     </View>
   );
@@ -38,13 +37,13 @@ const FunctionKeys = () => {
 const styles = StyleSheet.create({
   skillKeysContainer: {
     position: 'absolute',
-    bottom: 20,
-    right: 20,
+    bottom: height * 0.15, // 使用屏幕高度的百分比来定位
+    right: width * 0.03, // 使用屏幕宽度的百分比来定位
     flexDirection: 'row',
   },
   skillButton: {
-    width: 70,
-    height: 70,
+    width: 70, // 保留原来的按钮大小
+    height: 70, // 保留原来的按钮大小
     backgroundColor: '#008CBA',
     justifyContent: 'center',
     alignItems: 'center',
@@ -54,8 +53,8 @@ const styles = StyleSheet.create({
   },
   skillButtonRight: {
     position: 'absolute',
-    bottom: 100,
-    right: -50, // 调整位置
+    bottom: height * 0.15, // 使用屏幕高度的百分比来调整位置
+    right: -width * 0.07, // 使用屏幕宽度的百分比来调整位置
   },
   buttonText: {
     color: 'rgba(255,255,255,0.9)',
@@ -67,11 +66,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    width: 120,
-    height: 120,
-    bottom: 25,
-    right: 15,
-    zIndex: -1,
+    width: 120, // 保留原来的背景图大小
+    height: 120, // 保留原来的背景图大小
+    bottom: 25, // 保留图片在按钮中的相对位置
+    right: 15, // 保留图片在按钮中的相对位置
+    zIndex: -1, // 保留原来的层级
   },
 });
 
