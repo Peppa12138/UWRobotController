@@ -9,20 +9,21 @@ import {
   Dimensions,
 } from 'react-native';
 import FastImage from 'react-native-fast-image';
+import IPDetector from '../../utils/IPDetector';
 
 const {width, height} = Dimensions.get('window');
 
-// 直接在组件内定义网络配置
+// 使用动态IP检测的网络配置
 const getWebSocketUrl = () => {
-  // 根据需要修改IP地址
-  // 开发环境：使用实际IP地址 192.168.56.1
-  // Android模拟器：使用 10.0.2.2
-  // 真机测试：使用电脑的实际IP地址
-
-  const SERVER_IP = '192.168.56.1'; // 请根据实际IP地址修改
-  const PORT = '5000';
-
-  return `ws://${SERVER_IP}:${PORT}/video-stream`;
+  const dynamicIP = IPDetector.getCurrentIP();
+  const websocketURL = IPDetector.getWebSocketURL();
+  
+  console.log('[VideoStreamViewer] 使用动态IP配置:', {
+    detectedIP: dynamicIP,
+    websocketURL: websocketURL,
+  });
+  
+  return websocketURL;
 };
 
 const VideoStreamViewer = ({
@@ -92,10 +93,43 @@ const VideoStreamViewer = ({
   // const networkConfig = getAppConfig('DEVELOPMENT');
 
   useEffect(() => {
-    // 连接到WebSocket服务器
+    console.log('[VideoStreamViewer] 组件初始化');
+    
+    // 输出网络配置信息
+    IPDetector.logNetworkInfo();
+    
+    // 连接到视频流
     connectToVideoStream();
 
+    // 添加IP变化监听器
+    const handleIPChange = (newIP, oldIP) => {
+      console.log(`[VideoStreamViewer] 检测到IP变化: ${oldIP} -> ${newIP}`);
+      Alert.alert(
+        '网络变化',
+        `检测到IP地址变化，将重新连接服务器\n新IP: ${newIP}`,
+        [
+          {
+            text: '重新连接',
+            onPress: () => {
+              // 断开当前连接
+              if (wsConnection) {
+                wsConnection.close();
+              }
+              // 重新连接
+              setTimeout(connectToVideoStream, 1000);
+            },
+          },
+        ]
+      );
+    };
+    
+    IPDetector.addIPChangeListener(handleIPChange);
+
     return () => {
+      // 清理IP监听器
+      IPDetector.removeIPChangeListener(handleIPChange);
+      
+      // 清理WebSocket连接
       if (wsConnection) {
         wsConnection.close();
       }
