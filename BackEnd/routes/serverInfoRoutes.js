@@ -24,7 +24,7 @@ function getLocalIP() {
     const networkInterfaces = os.networkInterfaces();
     let bestIP = null;
     let bestPriority = Infinity;
-    
+
     console.log('检测网络接口:');
     for (const [name, interfaces] of Object.entries(networkInterfaces)) {
         const ipv4Interfaces = interfaces.filter(iface => iface.family === 'IPv4' && !iface.internal);
@@ -32,7 +32,7 @@ function getLocalIP() {
             console.log(`${name}:`, ipv4Interfaces.map(iface => iface.address));
         }
     }
-    
+
     for (const [name, interfaces] of Object.entries(networkInterfaces)) {
         for (const iface of interfaces) {
             if (iface.family === 'IPv4' && !iface.internal) {
@@ -43,9 +43,9 @@ function getLocalIP() {
                         priority = Math.min(priority, keywordPriority);
                     }
                 }
-                
+
                 console.log(`接口 ${name} (${iface.address}) 优先级: ${priority}`);
-                
+
                 if (priority < bestPriority) {
                     bestPriority = priority;
                     bestIP = iface.address;
@@ -53,7 +53,7 @@ function getLocalIP() {
             }
         }
     }
-    
+
     const finalIP = bestIP || '127.0.0.1';
     console.log(`选择的IP地址: ${finalIP}`);
     return finalIP;
@@ -76,14 +76,14 @@ router.get('/server-info', (req, res) => {
         };
 
         console.log('[ServerInfo] 客户端请求服务器信息:', serverInfo);
-        
+
         res.json({
             success: true,
             data: serverInfo,
         });
     } catch (error) {
         console.error('[ServerInfo] 获取服务器信息失败:', error);
-        
+
         res.status(500).json({
             success: false,
             error: '获取服务器信息失败',
@@ -99,7 +99,7 @@ router.get('/server-info', (req, res) => {
 router.get('/network-status', (req, res) => {
     try {
         const serverIP = getLocalIP();
-        
+
         res.json({
             success: true,
             data: {
@@ -111,7 +111,7 @@ router.get('/network-status', (req, res) => {
         });
     } catch (error) {
         console.error('[ServerInfo] 获取网络状态失败:', error);
-        
+
         res.status(500).json({
             success: false,
             error: '获取网络状态失败',

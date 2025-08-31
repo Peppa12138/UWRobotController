@@ -17,12 +17,12 @@ const {width, height} = Dimensions.get('window');
 const getWebSocketUrl = () => {
   const dynamicIP = IPDetector.getCurrentIP();
   const websocketURL = IPDetector.getWebSocketURL();
-  
+
   console.log('[VideoStreamViewer] 使用动态IP配置:', {
     detectedIP: dynamicIP,
     websocketURL: websocketURL,
   });
-  
+
   return websocketURL;
 };
 
@@ -94,10 +94,10 @@ const VideoStreamViewer = ({
 
   useEffect(() => {
     console.log('[VideoStreamViewer] 组件初始化');
-    
+
     // 输出网络配置信息
     IPDetector.logNetworkInfo();
-    
+
     // 连接到视频流
     connectToVideoStream();
 
@@ -119,16 +119,16 @@ const VideoStreamViewer = ({
               setTimeout(connectToVideoStream, 1000);
             },
           },
-        ]
+        ],
       );
     };
-    
+
     IPDetector.addIPChangeListener(handleIPChange);
 
     return () => {
       // 清理IP监听器
       IPDetector.removeIPChangeListener(handleIPChange);
-      
+
       // 清理WebSocket连接
       if (wsConnection) {
         wsConnection.close();
