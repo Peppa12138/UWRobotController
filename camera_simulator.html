@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电脑端摄像头模拟器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: #2d2d2d;
+            padding: 15px;
+            border-bottom: 2px solid #4CAF50;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+            text-align: center;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+        }
+
+        .video-section {
+            flex: 2;
+            position: relative;
+            background: #000;
+        }
+
+        .video-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        #videoElement {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-connected {
+            background: #4CAF50;
+        }
+
+        .status-disconnected {
+            background: #FFC107;
+        }
+
+        .status-error {
+            background: #F44336;
+        }
+
+        .streaming-indicator {
+            color: #F44336;
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .control-panel {
+            flex: 1;
+            background: #2d2d2d;
+            padding: 20px;
+            border-left: 2px solid #4CAF50;
+        }
+
+        .control-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #4CAF50;
+            border-bottom: 1px solid #4CAF50;
+            padding-bottom: 5px;
+        }
+
+        .button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .button-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .button-danger {
+            background: #F44336;
+            color: white;
+        }
+
+        .button-warning {
+            background: #FF9800;
+            color: white;
+        }
+
+        .button-info {
+            background: #2196F3;
+            color: white;
+        }
+
+        .button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .info-display {
+            background: #333;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .log-container {
+            background: #333;
+            padding: 15px;
+            border-radius: 5px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            margin-bottom: 3px;
+            padding: 2px 0;
+        }
+
+        .log-error {
+            color: #F44336;
+        }
+
+        .log-success {
+            color: #4CAF50;
+        }
+
+        .log-info {
+            color: #2196F3;
+        }
+
+        .log-warning {
+            color: #FF9800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">🎥 电脑端摄像头模拟器</div>
+        </div>
+        
+        <div class="main-content">
+            <div class="video-section">
+                <div class="video-container">
+                    <video id="videoElement" autoplay muted playsinline></video>
+                    <div class="video-overlay">
+                        <div class="status">
+                            <div id="statusIndicator" class="status-indicator status-disconnected"></div>
+                            <span id="statusText">未连接</span>
+                        </div>
+                        <div id="streamingStatus" style="display: none;">
+                            <span class="streaming-indicator">● 正在推流</span>
+                        </div>
+                        <div id="frameInfo">
+                            <div>帧数: <span id="frameCount">0</span></div>
+                            <div>FPS: <span id="currentFPS">0</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-panel">
+                <div class="control-section">
+                    <div class="section-title">连接控制</div>
+                    <button id="connectBtn" class="button button-primary">连接服务器</button>
+                    <button id="disconnectBtn" class="button button-danger" disabled>断开连接</button>
+                </div>
+                
+                <div class="control-section">
+                    <div class="section-title">摄像头控制</div>
+                    <button id="startCameraBtn" class="button button-info">启动摄像头</button>
+                    <button id="startStreamBtn" class="button button-primary" disabled>开始推流</button>
+                    <button id="stopStreamBtn" class="button button-danger" disabled>停止推流</button>
+                    <button id="takePhotoBtn" class="button button-warning" disabled>拍照</button>
+                </div>
+                
+                <div class="control-section">
+                    <div class="section-title">连接信息</div>
+                    <div class="info-display">
+                        <div class="info-row">
+                            <span>服务器地址:</span>
+                            <span>ws://localhost:5000/video-stream</span>
+                        </div>
+                        <div class="info-row">
+                            <span>连接状态:</span>
+                            <span id="connectionStatus">未连接</span>
+                        </div>
+                        <div class="info-row">
+                            <span>推流状态:</span>
+                            <span id="streamStatus">未推流</span>
+                        </div>
+                        <div class="info-row">
+                            <span>分辨率:</span>
+                            <span id="resolution">未知</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <div class="section-title">日志</div>
+                    <div id="logContainer" class="log-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class CameraSimulator {
+            constructor() {
+                this.websocket = null;
+                this.mediaStream = null;
+                this.isStreaming = false;
+                this.frameCount = 0;
+                this.canvas = document.createElement('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.streamInterval = null;
+                this.fpsInterval = null;
+                this.lastFPSTime = Date.now();
+                this.currentFPS = 0;
+                
+                this.initializeUI();
+                this.bindEvents();
+            }
+
+            initializeUI() {
+                this.elements = {
+                    video: document.getElementById('videoElement'),
+                    statusIndicator: document.getElementById('statusIndicator'),
+                    statusText: document.getElementById('statusText'),
+                    streamingStatus: document.getElementById('streamingStatus'),
+                    frameCount: document.getElementById('frameCount'),
+                    currentFPS: document.getElementById('currentFPS'),
+                    connectBtn: document.getElementById('connectBtn'),
+                    disconnectBtn: document.getElementById('disconnectBtn'),
+                    startCameraBtn: document.getElementById('startCameraBtn'),
+                    startStreamBtn: document.getElementById('startStreamBtn'),
+                    stopStreamBtn: document.getElementById('stopStreamBtn'),
+                    takePhotoBtn: document.getElementById('takePhotoBtn'),
+                    connectionStatus: document.getElementById('connectionStatus'),
+                    streamStatus: document.getElementById('streamStatus'),
+                    resolution: document.getElementById('resolution'),
+                    logContainer: document.getElementById('logContainer')
+                };
+            }
+
+            bindEvents() {
+                this.elements.connectBtn.addEventListener('click', () => this.connectToServer());
+                this.elements.disconnectBtn.addEventListener('click', () => this.disconnectFromServer());
+                this.elements.startCameraBtn.addEventListener('click', () => this.startCamera());
+                this.elements.startStreamBtn.addEventListener('click', () => this.startStreaming());
+                this.elements.stopStreamBtn.addEventListener('click', () => this.stopStreaming());
+                this.elements.takePhotoBtn.addEventListener('click', () => this.takePhoto());
+            }
+
+            log(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry log-${type}`;
+                logEntry.textContent = `[${timestamp}] ${message}`;
+                
+                this.elements.logContainer.appendChild(logEntry);
+                this.elements.logContainer.scrollTop = this.elements.logContainer.scrollHeight;
+                
+                // 限制日志条数
+                const logs = this.elements.logContainer.children;
+                if (logs.length > 100) {
+                    this.elements.logContainer.removeChild(logs[0]);
+                }
+                
+                console.log(`[${type.toUpperCase()}] ${message}`);
+            }
+
+            updateStatus(status) {
+                const statusClasses = {
+                    connected: 'status-connected',
+                    disconnected: 'status-disconnected',
+                    error: 'status-error'
+                };
+                
+                const statusTexts = {
+                    connected: '已连接',
+                    disconnected: '未连接',
+                    error: '连接错误'
+                };
+                
+                this.elements.statusIndicator.className = `status-indicator ${statusClasses[status]}`;
+                this.elements.statusText.textContent = statusTexts[status];
+                this.elements.connectionStatus.textContent = statusTexts[status];
+            }
+
+            async connectToServer() {
+                try {
+                    this.log('正在连接到服务器...', 'info');
+                    this.websocket = new WebSocket('ws://localhost:5000/video-stream');
+                    
+                    this.websocket.onopen = () => {
+                        this.log('WebSocket连接已建立', 'success');
+                        this.updateStatus('connected');
+                        this.elements.connectBtn.disabled = true;
+                        this.elements.disconnectBtn.disabled = false;
+                        
+                        // 注册为推流者
+                        this.websocket.send(JSON.stringify({
+                            type: 'start_stream',
+                            resolution: '640x480',
+                            fps: 30,
+                            codec: 'JPEG'
+                        }));
+                    };
+                    
+                    this.websocket.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            this.handleServerMessage(data);
+                        } catch (error) {
+                            this.log('解析服务器消息失败: ' + error.message, 'error');
+                        }
+                    };
+                    
+                    this.websocket.onerror = (error) => {
+                        this.log('WebSocket错误: ' + error.message, 'error');
+                        this.updateStatus('error');
+                    };
+                    
+                    this.websocket.onclose = () => {
+                        this.log('WebSocket连接已关闭', 'warning');
+                        this.updateStatus('disconnected');
+                        this.elements.connectBtn.disabled = false;
+                        this.elements.disconnectBtn.disabled = true;
+                        this.stopStreaming();
+                    };
+                    
+                } catch (error) {
+                    this.log('连接失败: ' + error.message, 'error');
+                    this.updateStatus('error');
+                }
+            }
+
+            disconnectFromServer() {
+                if (this.websocket) {
+                    this.websocket.close();
+                    this.websocket = null;
+                }
+                this.stopStreaming();
+            }
+
+            handleServerMessage(data) {
+                switch (data.type) {
+                    case 'welcome':
+                        this.log('收到服务器欢迎消息: ' + data.message, 'success');
+                        break;
+                    case 'stream_start_ack':
+                        this.log('推流开始确认: ' + data.message, 'success');
+                        break;
+                    case 'camera_control':
+                        this.log('收到摄像头控制命令: ' + data.command, 'info');
+                        this.handleCameraControl(data);
+                        break;
+                    default:
+                        this.log('未知消息类型: ' + data.type, 'warning');
+                }
+            }
+
+            handleCameraControl(data) {
+                const { command } = data;
+                
+                switch (command) {
+                    case 'take_photo':
+                        this.takePhoto();
+                        break;
+                    case 'start_streaming':
+                        if (!this.isStreaming) {
+                            this.startStreaming();
+                        }
+                        break;
+                    case 'stop_streaming':
+                        if (this.isStreaming) {
+                            this.stopStreaming();
+                        }
+                        break;
+                    default:
+                        this.log('未知的摄像头控制命令: ' + command, 'warning');
+                }
+            }
+
+            async startCamera() {
+                try {
+                    this.log('正在启动摄像头...', 'info');
+                    
+                    const constraints = {
+                        video: {
+                            width: { exact: 640 },
+                            height: { exact: 480 },
+                            frameRate: { ideal: 30 }
+                        },
+                        audio: false
+                    };
+                    
+                    this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    this.elements.video.srcObject = this.mediaStream;
+                    
+                    // 更新分辨率信息
+                    const videoTrack = this.mediaStream.getVideoTracks()[0];
+                    const settings = videoTrack.getSettings();
+                    this.elements.resolution.textContent = `${settings.width}x${settings.height}`;
+                    
+                    this.log('摄像头启动成功', 'success');
+                    this.elements.startCameraBtn.disabled = true;
+                    this.elements.startStreamBtn.disabled = false;
+                    this.elements.takePhotoBtn.disabled = false;
+                    
+                } catch (error) {
+                    this.log('启动摄像头失败: ' + error.message, 'error');
+                    alert('无法访问摄像头，请检查权限设置');
+                }
+            }
+
+            startStreaming() {
+                if (!this.mediaStream || !this.websocket || this.websocket.readyState !== WebSocket.OPEN) {
+                    this.log('无法开始推流：摄像头或连接未准备好', 'error');
+                    return;
+                }
+                
+                this.isStreaming = true;
+                this.frameCount = 0;
+                this.log('开始视频推流', 'success');
+                
+                this.elements.streamingStatus.style.display = 'block';
+                this.elements.startStreamBtn.disabled = true;
+                this.elements.stopStreamBtn.disabled = false;
+                this.elements.streamStatus.textContent = '推流中';
+                
+                // 开始捕获和发送帧
+                this.streamInterval = setInterval(() => {
+                    this.captureAndSendFrame();
+                }, 100); // 10 FPS
+                
+                // 计算FPS
+                this.fpsInterval = setInterval(() => {
+                    const now = Date.now();
+                    const timeDiff = (now - this.lastFPSTime) / 1000;
+                    this.currentFPS = Math.round(1 / timeDiff * 10) / 10;
+                    this.elements.currentFPS.textContent = this.currentFPS;
+                    this.lastFPSTime = now;
+                }, 1000);
+            }
+
+            stopStreaming() {
+                this.isStreaming = false;
+                
+                if (this.streamInterval) {
+                    clearInterval(this.streamInterval);
+                    this.streamInterval = null;
+                }
+                
+                if (this.fpsInterval) {
+                    clearInterval(this.fpsInterval);
+                    this.fpsInterval = null;
+                }
+                
+                this.log('视频推流已停止', 'warning');
+                
+                this.elements.streamingStatus.style.display = 'none';
+                this.elements.startStreamBtn.disabled = false;
+                this.elements.stopStreamBtn.disabled = true;
+                this.elements.streamStatus.textContent = '未推流';
+                
+                if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+                    this.websocket.send(JSON.stringify({
+                        type: 'stop_stream'
+                    }));
+                }
+            }
+
+            captureAndSendFrame() {
+                if (!this.isStreaming || !this.mediaStream) return;
+                
+                const video = this.elements.video;
+                if (video.videoWidth === 0 || video.videoHeight === 0) return;
+                
+                // 强制使用较小的尺寸
+                this.canvas.width = 640;
+                this.canvas.height = 480;
+                
+                // 绘制视频帧到canvas
+                this.ctx.drawImage(video, 0, 0, 640, 480);
+                
+                // 转换为base64，降低质量
+                const dataURL = this.canvas.toDataURL('image/jpeg', 0.3);
+                const base64Data = dataURL.split(',')[1];
+                
+                // 发送帧数据
+                if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+                    this.websocket.send(JSON.stringify({
+                        type: 'video_frame',
+                        frameData: base64Data,
+                        timestamp: Date.now(),
+                        frameNumber: this.frameCount++
+                    }));
+                    
+                    this.elements.frameCount.textContent = this.frameCount;
+                }
+            }
+
+            takePhoto() {
+                if (!this.mediaStream) {
+                    this.log('无法拍照：摄像头未启动', 'error');
+                    return;
+                }
+                
+                const video = this.elements.video;
+                this.canvas.width = video.videoWidth;
+                this.canvas.height = video.videoHeight;
+                this.ctx.drawImage(video, 0, 0);
+                
+                // 创建下载链接
+                this.canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `photo_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.jpg`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    this.log('照片已保存', 'success');
+                }, 'image/jpeg', 0.9);
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new CameraSimulator();
+        });
+    </script>
+</body>
+</html>

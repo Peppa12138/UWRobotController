@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .connected { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .disconnected { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .message { background: #e2e3e5; padding: 10px; margin: 5px 0; border-radius: 3px; font-family: monospace; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .connect { background: #28a745; color: white; }
+        .disconnect { background: #dc3545; color: white; }
+        .test { background: #007bff; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 APP视频流连接测试</h1>
+        <p>测试APP是否能够连接到视频流服务器</p>
+        
+        <div id="status" class="status disconnected">
+            ❌ 未连接到服务器
+        </div>
+
+        <div>
+            <button class="connect" onclick="connect()">连接测试</button>
+            <button class="disconnect" onclick="disconnect()">断开连接</button>
+            <button class="test" onclick="sendTestMessage()">发送测试消息</button>
+        </div>
+
+        <h3>连接日志：</h3>
+        <div id="messages"></div>
+
+        <h3>网络配置：</h3>
+        <div class="message">
+            <strong>WebSocket地址:</strong> ws://192.168.56.1:5000/video-stream<br>
+            <strong>服务器IP:</strong> 192.168.56.1<br>
+            <strong>端口:</strong> 5000
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+
+        function log(message, type = 'info') {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = 'message';
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function updateStatus(connected, message) {
+            const status = document.getElementById('status');
+            if (connected) {
+                status.className = 'status connected';
+                status.innerHTML = '✅ ' + message;
+            } else {
+                status.className = 'status disconnected';
+                status.innerHTML = '❌ ' + message;
+            }
+        }
+
+        function connect() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                log('⚠️ 已经连接到服务器', 'warning');
+                return;
+            }
+
+            log('🔄 正在连接到 ws://192.168.56.1:5000/video-stream...', 'info');
+            
+            try {
+                ws = new WebSocket('ws://192.168.56.1:5000/video-stream');
+                
+                ws.onopen = function() {
+                    log('✅ 连接成功！', 'success');
+                    updateStatus(true, '已连接到视频流服务器');
+                    
+                    // 注册为测试观看者
+                    ws.send(JSON.stringify({
+                        type: 'join_as_viewer'
+                    }));
+                    log('📤 已发送观看者注册消息', 'info');
+                };
+                
+                ws.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        log(`📨 收到消息: ${data.type} - ${data.message || ''}`, 'success');
+                        
+                        if (data.type === 'video_frame') {
+                            log(`🎥 收到视频帧 #${data.frameNumber}`, 'success');
+                        }
+                    } catch (e) {
+                        log(`📨 收到原始消息: ${event.data}`, 'info');
+                    }
+                };
+                
+                ws.onerror = function(error) {
+                    log('❌ 连接错误: ' + error, 'error');
+                    updateStatus(false, '连接错误');
+                };
+                
+                ws.onclose = function() {
+                    log('🔌 连接已关闭', 'warning');
+                    updateStatus(false, '连接已断开');
+                };
+                
+            } catch (error) {
+                log('❌ 创建连接失败: ' + error.message, 'error');
+                updateStatus(false, '连接失败');
+            }
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                log('🔌 主动断开连接', 'info');
+            }
+        }
+
+        function sendTestMessage() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'test_message',
+                    message: 'APP连接测试',
+                    timestamp: Date.now()
+                }));
+                log('📤 已发送测试消息', 'info');
+            } else {
+                log('❌ 未连接到服务器，无法发送消息', 'error');
+            }
+        }
+
+        // 页面加载时显示初始状态
+        window.onload = function() {
+            log('🚀 测试页面已加载', 'info');
+            log('💡 点击"连接测试"按钮开始测试APP连接', 'info');
+        };
+    </script>
+</body>
+</html>

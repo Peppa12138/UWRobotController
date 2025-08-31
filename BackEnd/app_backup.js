@@ -1,5 +1,9 @@
 const express = require('express');
-const bodyParser = require('body-parser');
+server.listen(PORT, () => {
+    console.log(`服务器正在运行，端口号: ${PORT}`);
+    console.log(`摄像头模拟器地址: http://localhost:${PORT}/camera-simulator/camera_streamer.html`);
+    console.log(`WebSocket地址: ws://localhost:${PORT}/video-stream`);
+}); bodyParser = require('body-parser');
 const cors = require('cors');
 const http = require('http');
 const path = require('path');
@@ -35,11 +39,8 @@ videoStreamController.initializeWebSocketServer(server);
 
 // 启动服务器
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, () => {
     console.log(`服务器正在运行，端口号: ${PORT}`);
-    console.log(`本机访问地址: http://localhost:${PORT}`);
-    console.log(`局域网访问地址: http://192.168.56.1:${PORT}`);
-    console.log(`摄像头模拟器地址: http://localhost:${PORT}/camera-simulator/camera_streamer.html`);
-    console.log(`WebSocket地址: ws://192.168.56.1:${PORT}/video-stream`);
-    console.log(`APP连接地址: ws://192.168.56.1:${PORT}/video-stream`);
+    console.log(`摄像头模拟器地址: http://localhost:${PORT}/camera-simulator/camera_simulator.html`);
+    console.log(`WebSocket地址: ws://localhost:${PORT}/video-stream`);
 });

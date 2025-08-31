@@ -6,7 +6,8 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import Video from 'react-native-video';
+//  移除 Video 导入
+// import Video from 'react-native-video';
 import {
   useNavigation,
   useRoute,
@@ -14,6 +15,8 @@ import {
 } from '@react-navigation/native';
 import axios from 'axios';
 
+// 导入 VideoStreamViewer
+import VideoStreamViewer from '../VideoStreamViewer/VideoStreamViewer';
 
 import FunctionKeys from '../Operations/FunctionKeys';
 import StatusView from '../Operations/StatusView';
@@ -21,7 +24,7 @@ import VirtualJoystick from '../VirtualJoystick/VirtualJoystick';
 import ReturnButton from '../Operations/ReturnButton';
 import NetworkStatus from '../Operations/NetworkStatus';
 import VideoStats from '../Operations/VideoStats';
-import DirectionPad from '../Operations/DirectionPad'
+import DirectionPad from '../Operations/DirectionPad';
 
 const {width, height} = Dimensions.get('window');
 
@@ -37,9 +40,14 @@ const ControlPanel = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
-  // 新增用于视频播放数据的 state
-  const [videoProgress, setVideoProgress] = useState(0);
-  const [videoFrameRate, setVideoFrameRate] = useState(null);
+  // // 新增用于视频播放数据的 state
+  // const [videoProgress, setVideoProgress] = useState(0);
+  // const [videoFrameRate, setVideoFrameRate] = useState(null);
+
+  // 修改为视频流相关的 state
+  const [streamProgress, setStreamProgress] = useState(0);
+  const [streamFrameRate, setStreamFrameRate] = useState(30); // 默认30fps
+  const [isStreamConnected, setIsStreamConnected] = useState(false);
 
   useEffect(() => {
     const fetchStatusData = async () => {
@@ -106,55 +114,88 @@ const ControlPanel = () => {
     navigation.navigate('AfterLogin');
   };
 
-  // 新增：处理视频进度更新
-  const handleVideoProgress = data => {
-    setVideoProgress(data.currentTime);
+  // // 新增：处理视频进度更新
+  // const handleVideoProgress = data => {
+  //   setVideoProgress(data.currentTime);
+  // };
+
+  // // 新增：处理视频加载完成事件
+  // const handleVideoLoad = data => {
+  //   // 此处仅示例如何计算帧率（不是真正的帧率）
+  //   setVideoFrameRate(data.naturalSize.width / data.naturalSize.height);
+  // };
+
+  // 处理视频流连接状态
+  const handleStreamConnectionChange = connected => {
+    setIsStreamConnected(connected);
   };
 
-  // 新增：处理视频加载完成事件
-  const handleVideoLoad = data => {
-    // 此处仅示例如何计算帧率（不是真正的帧率）
-    setVideoFrameRate(data.naturalSize.width / data.naturalSize.height);
+  // 处理视频流统计数据
+  const handleStreamStats = stats => {
+    setStreamFrameRate(stats.fps || 30);
+    setStreamProgress(stats.duration || 0);
   };
 
   return (
     <View style={styles.container}>
-      <Video
+      {/* <Video
         source={require('../public/Videos/background.mp4')}
         style={StyleSheet.absoluteFill}
         muted={isMuted}
         paused={isPaused}
         repeat={true}
         resizeMode="cover"
-        onLoad={handleVideoLoad}       // 添加 onLoad 事件
+        onLoad={handleVideoLoad} // 添加 onLoad 事件
         onProgress={handleVideoProgress} // 添加 onProgress 事件
-      />
-      <View style={styles.content}>
-        <View style={styles.leftPanel}>
-          {controlMode === 1 && (
-            <VirtualJoystick
-              // onMove={data => console.log(data)}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            />
-          )}
+      /> */}
+      <View style={styles.container}>
+        {/* 替换 Video 组件为 VideoStreamViewer */}
+        <VideoStreamViewer
+          style={StyleSheet.absoluteFill}
+          onConnectionChange={handleStreamConnectionChange}
+          onStatsUpdate={handleStreamStats}
+        />
+        <View style={styles.content}>
+          <View style={styles.leftPanel}>
+            {controlMode === 1 && (
+              <VirtualJoystick
+                // onMove={data => console.log(data)}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              />
+            )}
+          </View>
+          <View style={styles.rightPanel}>
+            <FunctionKeys />
+          </View>
+          <DirectionPad onPress={handleDirectionPress} />
+          <ReturnButton onPress={handleReturnButtonPress} />
+          <View style={styles.statusViewContainer}>
+            <StatusView fontSize={fontSize} statusData={statusData} />
+          </View>
         </View>
-        <View style={styles.rightPanel}>
-          <FunctionKeys />
-        </View>
-        <DirectionPad onPress={handleDirectionPress} />
-        <ReturnButton onPress={handleReturnButtonPress} />
-        <View style={styles.statusViewContainer}>
-          <StatusView fontSize={fontSize} statusData={statusData} />
-        </View>
-      </View>
 
-      <NetworkStatus />
-      {/* 将视频数据传递给 VideoStats 组件 */}
-      <VideoStats progress={videoProgress} frameRate={videoFrameRate} />
+        <NetworkStatus />
+        {/* 将视频数据传递给 VideoStats 组件 */}
+        {/* <VideoStats progress={videoProgress} frameRate={videoFrameRate} /> */}
+        {/* 传递视频流数据给 VideoStats 组件 */}
+        <VideoStats
+          progress={streamProgress}
+          frameRate={streamFrameRate}
+          isLive={isStreamConnected}
+        />
 
-      <TouchableOpacity style={styles.muteButton} onPress={toggleMute}>
+        {/* 添加流连接状态指示器 */}
+        <View style={styles.streamStatus}>
+          <View
+            style={[
+              styles.statusIndicator,
+              {backgroundColor: isStreamConnected ? '#00ff00' : '#ff0000'},
+            ]}
+          />
+        </View>
+        {/* <TouchableOpacity style={styles.muteButton} onPress={toggleMute}>
         <Image
           source={
             isMuted
@@ -163,7 +204,8 @@ const ControlPanel = () => {
           }
           style={styles.muteIcon}
         />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      </View>
     </View>
   );
 };
@@ -204,6 +246,20 @@ const styles = StyleSheet.create({
   muteIcon: {
     width: width * 0.03,
     height: width * 0.03,
+  },
+  // 新增：流状态指示器
+  streamStatus: {
+    position: 'absolute',
+    top: height * 0.02,
+    right: width * 0.05,
+    zIndex: 15,
+  },
+  statusIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#ffffff',
   },
 });
 
