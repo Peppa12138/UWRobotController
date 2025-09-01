@@ -58,12 +58,12 @@ const styles = StyleSheet.create({
   },
   upButtonContainer: {
     position: 'absolute', // 使用绝对定位
-    top: height * 0.66, //
+    top: height * 0.55, //
     left: width * 0.75, // 
   },
   downButtonContainer: {
     position: 'absolute', // 使用绝对定位
-    top: height * 0.84, // 距离顶部 50% 的高度
+    top: height * 0.72, // 距离顶部 50% 的高度
     right: width * 0.18, // 距离右侧 30% 的宽度
   },
 });

@@ -30,40 +30,77 @@ const VideoStreamViewer = ({
                 font-family: Arial, sans-serif;
             }
             #videoCanvas { 
+                position: fixed;
+                top: 0;
+                left: 0;
                 width: 100vw; 
                 height: 100vh; 
-                object-fit: contain;
+                object-fit: cover;
                 background: #000;
+                z-index: 1;
             }
             #statusBar {
-                position: absolute;
+                position: fixed;
                 top: 10px;
-                left: 10px;
-                right: 10px;
-                background: rgba(0,0,0,0.7);
+                left: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.9);
                 color: white;
-                padding: 8px 12px;
-                border-radius: 8px;
-                font-size: 12px;
+                padding: 10px 20px;
+                height: 40px;
+                border-radius: 25px;
+                font-size: 14px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                backdrop-filter: blur(15px);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                z-index: 1000;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             }
             #statusIndicator {
-                width: 8px;
-                height: 8px;
+                width: 12px;
+                height: 12px;
                 border-radius: 50%;
                 background: #FFC107;
-                margin-right: 8px;
+                margin-right: 12px;
+                box-shadow: 0 0 10px rgba(255, 193, 7, 0.8);
+                animation: pulse 2s infinite;
             }
-            #statusIndicator.connected { background: #4CAF50; }
-            #statusIndicator.error { background: #F44336; }
+            #statusIndicator.connected { 
+                background: #4CAF50; 
+                box-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
+            }
+            #statusIndicator.error { 
+                background: #F44336; 
+                box-shadow: 0 0 10px rgba(244, 67, 54, 0.8);
+            }
+            @keyframes pulse {
+                0% { opacity: 1; }
+                50% { opacity: 0.7; }
+                100% { opacity: 1; }
+            }
             #liveIndicator {
-                color: #F44336;
+                background: linear-gradient(45deg, #FF4444, #FF6B6B);
+                color: white;
                 font-weight: bold;
+                font-size: 12px;
+                padding: 6px 12px;
+                border-radius: 15px;
                 display: none;
+                box-shadow: 0 3px 8px rgba(244, 67, 54, 0.5);
+                border: 1px solid rgba(255, 255, 255, 0.2);
             }
-            #liveIndicator.show { display: block; }
+            #liveIndicator.show { 
+                display: block; 
+                animation: liveBlink 1.5s infinite;
+            }
+            @keyframes liveBlink {
+                0%, 50% { opacity: 1; transform: scale(1); }
+                25% { transform: scale(1.05); }
+                51%, 100% { opacity: 0.85; }
+            }
         </style>
     </head>
     <body>
@@ -82,8 +119,16 @@ const VideoStreamViewer = ({
                     this.canvas = document.getElementById('videoCanvas');
                     this.ctx = this.canvas.getContext('2d');
                     this.frameCount = 0;
-                    this.lastFrameTime = 0;
+                    this.lastFrameTime = Date.now();
                     this.fps = 0;
+                    this.frameBuffer = [];
+                    this.maxBufferSize = 3; // 缓冲3帧减少卡顿
+                    this.isProcessing = false;
+                    this.performanceMonitor = {
+                        avgRenderTime: 0,
+                        droppedFrames: 0,
+                        totalFrames: 0
+                    };
                     
                     // 状态元素
                     this.statusIndicator = document.getElementById('statusIndicator');
@@ -92,6 +137,7 @@ const VideoStreamViewer = ({
                     
                     this.initializeCanvas();
                     this.setupMessageHandler();
+                    this.startPerformanceMonitoring();
                 }
 
                 initializeCanvas() {
@@ -151,60 +197,126 @@ const VideoStreamViewer = ({
                 }
 
                 renderFrame(frameData, frameNumber) {
-                    if (!frameData) return;
+                    if (!frameData || this.isProcessing) {
+                        if (!frameData) this.performanceMonitor.droppedFrames++;
+                        return;
+                    }
+
+                    // 帧缓冲管理
+                    this.frameBuffer.push({ frameData, frameNumber, timestamp: Date.now() });
+                    if (this.frameBuffer.length > this.maxBufferSize) {
+                        this.frameBuffer.shift(); // 移除最老的帧
+                    }
+
+                    this.processNextFrame();
+                }
+
+                processNextFrame() {
+                    if (this.isProcessing || this.frameBuffer.length === 0) return;
+                    
+                    this.isProcessing = true;
+                    const startTime = performance.now();
+                    const { frameData, frameNumber } = this.frameBuffer.shift();
 
                     const img = new Image();
                     
                     img.onload = () => {
-                        // 清空画布
-                        this.ctx.fillStyle = '#000';
-                        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-                        
-                        // 计算居中显示的位置和尺寸
-                        const canvasAspect = this.canvas.width / this.canvas.height;
-                        const imgAspect = img.width / img.height;
-                        
-                        let drawWidth, drawHeight, drawX, drawY;
-                        
-                        if (imgAspect > canvasAspect) {
-                            // 图片更宽，以宽度为准
-                            drawWidth = this.canvas.width;
-                            drawHeight = drawWidth / imgAspect;
-                            drawX = 0;
-                            drawY = (this.canvas.height - drawHeight) / 2;
-                        } else {
-                            // 图片更高，以高度为准
-                            drawHeight = this.canvas.height;
-                            drawWidth = drawHeight * imgAspect;
-                            drawX = (this.canvas.width - drawWidth) / 2;
-                            drawY = 0;
-                        }
-                        
-                        // 绘制图像
-                        this.ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
-                        
-                        // 更新统计
-                        this.frameCount = frameNumber;
-                        const now = Date.now();
-                        if (now - this.lastFrameTime > 1000) {
-                            this.fps = this.frameCount / ((now - this.lastFrameTime) / 1000);
-                            this.lastFrameTime = now;
-                            
-                            // 发送统计信息回React Native
-                            this.postMessage({
-                                type: 'stats_update',
-                                fps: this.fps.toFixed(1),
-                                frameNumber: frameNumber
+                        try {
+                            // 使用requestAnimationFrame优化渲染
+                            requestAnimationFrame(() => {
+                                // 清空画布
+                                this.ctx.fillStyle = '#000';
+                                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                                
+                                // 计算居中显示的位置和尺寸
+                                const canvasAspect = this.canvas.width / this.canvas.height;
+                                const imgAspect = img.width / img.height;
+                                
+                                let drawWidth, drawHeight, drawX, drawY;
+                                
+                                if (imgAspect > canvasAspect) {
+                                    // 图片更宽，以宽度为准
+                                    drawWidth = this.canvas.width;
+                                    drawHeight = drawWidth / imgAspect;
+                                    drawX = 0;
+                                    drawY = (this.canvas.height - drawHeight) / 2;
+                                } else {
+                                    // 图片更高，以高度为准
+                                    drawHeight = this.canvas.height;
+                                    drawWidth = drawHeight * imgAspect;
+                                    drawX = (this.canvas.width - drawWidth) / 2;
+                                    drawY = 0;
+                                }
+                                
+                                // 优化的图像绘制
+                                this.ctx.imageSmoothingEnabled = true;
+                                this.ctx.imageSmoothingQuality = 'medium';
+                                this.ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+                                
+                                // 更新统计
+                                this.updateStats(frameNumber, startTime);
+                                this.isProcessing = false;
+                                
+                                // 处理下一帧
+                                if (this.frameBuffer.length > 0) {
+                                    setTimeout(() => this.processNextFrame(), 16); // ~60fps限制
+                                }
                             });
+                        } catch (error) {
+                            console.error('帧渲染错误:', error);
+                            this.isProcessing = false;
                         }
                     };
                     
-                    img.onerror = (error) => {
-                        console.error('图像加载失败:', error);
+                    img.onerror = () => {
+                        console.error('图像加载失败');
+                        this.performanceMonitor.droppedFrames++;
+                        this.isProcessing = false;
                     };
                     
-                    // 设置图像源
                     img.src = 'data:image/jpeg;base64,' + frameData;
+                }
+
+                updateStats(frameNumber, startTime) {
+                    this.frameCount = frameNumber;
+                    this.performanceMonitor.totalFrames++;
+                    
+                    const renderTime = performance.now() - startTime;
+                    this.performanceMonitor.avgRenderTime = 
+                        (this.performanceMonitor.avgRenderTime * 0.9) + (renderTime * 0.1);
+
+                    const now = Date.now();
+                    if (now - this.lastFrameTime > 1000) {
+                        this.fps = this.performanceMonitor.totalFrames / ((now - this.lastFrameTime) / 1000);
+                        this.lastFrameTime = now;
+                        this.performanceMonitor.totalFrames = 0;
+                        
+                        // 发送优化的统计信息回React Native
+                        this.postMessage({
+                            type: 'stats_update',
+                            fps: this.fps.toFixed(1),
+                            frameNumber: frameNumber,
+                            performance: {
+                                avgRenderTime: this.performanceMonitor.avgRenderTime.toFixed(2),
+                                droppedFrames: this.performanceMonitor.droppedFrames,
+                                bufferSize: this.frameBuffer.length
+                            }
+                        });
+                    }
+                }
+
+                startPerformanceMonitoring() {
+                    setInterval(() => {
+                        // 如果平均渲染时间过长，清理缓冲区
+                        if (this.performanceMonitor.avgRenderTime > 50) {
+                            this.frameBuffer = this.frameBuffer.slice(-1); // 只保留最新帧
+                        }
+                        
+                        // 重置掉帧计数
+                        if (this.performanceMonitor.droppedFrames > 100) {
+                            this.performanceMonitor.droppedFrames = 0;
+                        }
+                    }, 5000);
                 }
 
                 updateStatus(status, isStreaming) {
@@ -222,11 +334,13 @@ const VideoStreamViewer = ({
                             this.statusText.textContent = '连接中...';
                     }
                     
-                    // 更新直播状态
+                    // 更新LIVE指示器
                     if (isStreaming) {
                         this.liveIndicator.className = 'show';
+                        this.liveIndicator.textContent = '● LIVE';
                     } else {
                         this.liveIndicator.className = '';
+                        this.liveIndicator.textContent = '';
                     }
                 }
 
@@ -501,33 +615,60 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   webViewContainer: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   webView: {
     flex: 1,
     backgroundColor: '#000',
   },
   controlsContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingVertical: 15,
-    paddingHorizontal: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    paddingHorizontal: 25,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    zIndex: 1000,
   },
   controlButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 15,
     minWidth: 60,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
   controlText: {
     color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 11,
+    fontWeight: '500',
+    textAlign: 'center',
   },
 });
 

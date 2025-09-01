@@ -15,7 +15,7 @@ import {
 } from '@react-navigation/native';
 import axios from 'axios';
 
-// 导入 VideoStreamViewer
+// 导入 VideoStreamViewer (WebView版本 - 避免频闪)
 import VideoStreamViewer from '../VideoStreamViewer/VideoStreamViewer';
 
 import FunctionKeys from '../Operations/FunctionKeys';
@@ -130,10 +130,19 @@ const ControlPanel = () => {
     setIsStreamConnected(connected);
   };
 
-  // 处理视频流统计数据
+  // 处理视频流统计数据 - 包含性能监控
   const handleStreamStats = stats => {
     setStreamFrameRate(stats.fps || 30);
     setStreamProgress(stats.duration || 0);
+    
+    // 新增：显示性能监控信息
+    if (stats.performance) {
+      console.log('WebView性能监控:', {
+        avgRenderTime: stats.performance.avgRenderTime + 'ms',
+        droppedFrames: stats.performance.droppedFrames,
+        bufferSize: stats.performance.bufferSize
+      });
+    }
   };
 
   return (
@@ -187,14 +196,14 @@ const ControlPanel = () => {
         />
 
         {/* 添加流连接状态指示器 */}
-        <View style={styles.streamStatus}>
+        {/* <View style={styles.streamStatus}>
           <View
             style={[
               styles.statusIndicator,
               {backgroundColor: isStreamConnected ? '#00ff00' : '#ff0000'},
             ]}
           />
-        </View>
+        </View>*/}
         {/* <TouchableOpacity style={styles.muteButton} onPress={toggleMute}>
         <Image
           source={
@@ -229,8 +238,8 @@ const styles = StyleSheet.create({
   },
   statusViewContainer: {
     position: 'absolute',
-    top: height * 0.03,
-    left: width * 0.05,
+    top: height * 0.11,
+    left: width * 0.01,
     zIndex: 10,
   },
   muteButton: {
@@ -251,7 +260,7 @@ const styles = StyleSheet.create({
   streamStatus: {
     position: 'absolute',
     top: height * 0.02,
-    right: width * 0.05,
+    right: width * 0.1,
     zIndex: 15,
   },
   statusIndicator: {
