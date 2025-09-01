@@ -17,8 +17,8 @@ export class IPDetector {
             // React Native环境中，我们需要手动配置或从远程获取
             // 这里先使用一个默认配置，实际项目中可以从配置文件读取
             if (Platform.OS === 'android') {
-                // Android真机或模拟器
-                this.currentIP = '172.6.1.44'; // 从后端动态检测到的IP
+                // Android模拟器使用特殊地址访问宿主机
+                this.currentIP = '10.0.2.2'; // AVD模拟器访问宿主机的地址
             } else if (Platform.OS === 'ios') {
                 // iOS设备
                 this.currentIP = '172.6.1.44'; // 从后端动态检测到的IP
@@ -125,9 +125,10 @@ export class IPDetector {
             // 尝试连接到一个已知的端点来获取服务器IP
             // 这个功能需要服务器提供一个返回其IP的API端点
             const possibleIPs = [
-                '172.6.1.44',  // 当前检测到的IP
-                '192.168.56.1', // 之前的IP
-                '192.168.1.100', // 默认备选
+                '10.0.2.2',        // AVD模拟器访问宿主机
+                '172.6.1.44',      // 当前检测到的IP
+                '192.168.56.1',    // 之前的IP
+                '192.168.1.100',   // 默认备选
             ];
 
             for (const ip of possibleIPs) {
