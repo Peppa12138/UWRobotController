@@ -1,14 +1,14 @@
-import React, { useRef } from 'react';
-import { View, PanResponder, StyleSheet, Text, Animated } from 'react-native';
+import React, {useRef} from 'react';
+import {View, PanResponder, StyleSheet, Text, Animated} from 'react-native';
 
-const VirtualJoystick = ({ onMove }) => {
+const VirtualJoystick = ({onMove}) => {
   const joystickRadius = 50; // 摇杆背景半径
   const minStickRadius = 10; // 摇杆按钮最小半径
   const maxStickRadius = 20; // 摇杆按钮最大半径
   const maxDistance = joystickRadius - minStickRadius; // 最大偏移范围
   const activationDistance = joystickRadius * 3; // 手指离摇杆的最大有效距离
 
-  const animatedPosition = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current; // 用于动画的位置
+  const animatedPosition = useRef(new Animated.ValueXY({x: 0, y: 0})).current; // 用于动画的位置
   const animatedRadius = useRef(new Animated.Value(minStickRadius)).current; // 用于动画的半径
   const joystickRef = useRef(null);
 
@@ -16,7 +16,7 @@ const VirtualJoystick = ({ onMove }) => {
   const animateStickToCenter = () => {
     Animated.parallel([
       Animated.spring(animatedPosition, {
-        toValue: { x: 0, y: 0 },
+        toValue: {x: 0, y: 0},
         friction: 5, // 控制动画的平滑度
         useNativeDriver: false,
       }),
@@ -48,7 +48,7 @@ const VirtualJoystick = ({ onMove }) => {
 
           if (distance <= maxDistance) {
             // 在范围内，直接更新位置和半径
-            animatedPosition.setValue({ x: offsetX, y: offsetY });
+            animatedPosition.setValue({x: offsetX, y: offsetY});
             const newRadius =
               minStickRadius +
               (distance / maxDistance) * (maxStickRadius - minStickRadius);
@@ -77,7 +77,7 @@ const VirtualJoystick = ({ onMove }) => {
         // 释放时平滑返回中心位置
         animateStickToCenter();
         if (onMove) {
-          onMove({ x: 0, y: 0, distance: 0 });
+          onMove({x: 0, y: 0, distance: 0});
         }
       },
     }),
@@ -89,11 +89,10 @@ const VirtualJoystick = ({ onMove }) => {
       <View
         style={[
           styles.joystickBackground,
-          { width: joystickRadius * 2, height: joystickRadius * 2 },
+          {width: joystickRadius * 2, height: joystickRadius * 2},
         ]}
         {...panResponder.panHandlers}
-        ref={joystickRef}
-      >
+        ref={joystickRef}>
         {/* 摇杆控制按钮 */}
         <Animated.View
           style={[
@@ -112,8 +111,8 @@ const VirtualJoystick = ({ onMove }) => {
                 outputRange: [minStickRadius, maxStickRadius],
               }),
               transform: [
-                { translateX: animatedPosition.x },
-                { translateY: animatedPosition.y },
+                {translateX: animatedPosition.x},
+                {translateY: animatedPosition.y},
               ],
             },
           ]}

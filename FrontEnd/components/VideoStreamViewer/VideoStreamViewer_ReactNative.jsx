@@ -36,13 +36,13 @@ const VideoStreamViewer = ({
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const [isStreaming, setIsStreaming] = useState(false);
   const [displayFrame, setDisplayFrame] = useState(null);
-  
+
   // 极简状态管理 - 只保留最基本的统计
   const frameStatsRef = useRef({
     frameCount: 0,
-    lastFrameTime: 0
+    lastFrameTime: 0,
   });
-  
+
   // 简化的帧率控制 - 固定15FPS减少Bridge压力
   const lastUpdateTimeRef = useRef(0);
   const FRAME_UPDATE_INTERVAL = 67; // 15FPS，大幅减少Bridge开销
@@ -53,7 +53,7 @@ const VideoStreamViewer = ({
   const updateDisplayFrame = frameData => {
     const now = Date.now();
     const timeSinceLastUpdate = now - lastUpdateTimeRef.current;
-    
+
     // 简单的时间间隔控制
     if (timeSinceLastUpdate >= FRAME_UPDATE_INTERVAL) {
       setDisplayFrame(frameData);
@@ -215,7 +215,7 @@ const VideoStreamViewer = ({
     try {
       // 最简处理：直接trim
       const cleanFrameData = frameData.trim();
-      
+
       // 直接更新显示帧，不做异步处理
       updateDisplayFrame(cleanFrameData);
 
@@ -232,7 +232,6 @@ const VideoStreamViewer = ({
       if (frameNumber % 500 === 0) {
         console.log(`VideoStreamViewer: 极简模式处理第${frameNumber}帧`);
       }
-
     } catch (error) {
       console.error('VideoStreamViewer: 帧处理出错:', error);
     }
@@ -242,7 +241,7 @@ const VideoStreamViewer = ({
       onStatsUpdate({
         frameNumber: frameNumber,
         timestamp: Date.now(),
-        mode: 'simplified'
+        mode: 'simplified',
       });
     }
   };
@@ -253,12 +252,12 @@ const VideoStreamViewer = ({
   useEffect(() => {
     return () => {
       console.log('VideoStreamViewer: 极简模式清理');
-      
+
       // 清理WebSocket连接
       if (wsConnection) {
         wsConnection.close();
       }
-      
+
       // 简单清理
       setDisplayFrame(null);
       setIsStreaming(false);
@@ -268,24 +267,27 @@ const VideoStreamViewer = ({
   /**
    * 使用useCallback缓存函数，避免重复创建
    */
-  const sendCameraControl = useCallback((command, parameters = {}) => {
-    if (wsConnection && wsConnection.readyState === WebSocket.OPEN) {
-      wsConnection.send(
-        JSON.stringify({
-          type: 'camera_control',
-          command: command,
-          parameters: parameters,
-        }),
-      );
+  const sendCameraControl = useCallback(
+    (command, parameters = {}) => {
+      if (wsConnection && wsConnection.readyState === WebSocket.OPEN) {
+        wsConnection.send(
+          JSON.stringify({
+            type: 'camera_control',
+            command: command,
+            parameters: parameters,
+          }),
+        );
 
-      // 回调通知父组件
-      if (onCameraControl) {
-        onCameraControl(command, parameters);
+        // 回调通知父组件
+        if (onCameraControl) {
+          onCameraControl(command, parameters);
+        }
+      } else {
+        Alert.alert('连接错误', '无法发送控制命令，请检查连接状态');
       }
-    } else {
-      Alert.alert('连接错误', '无法发送控制命令，请检查连接状态');
-    }
-  }, [wsConnection, onCameraControl]);
+    },
+    [wsConnection, onCameraControl],
+  );
 
   /**
    * 缓存状态相关的计算结果
@@ -316,7 +318,9 @@ const VideoStreamViewer = ({
    * 缓存视频源URI，减少重复计算
    */
   const videoSource = useMemo(() => {
-    return displayFrame ? {uri: `data:image/jpeg;base64,${displayFrame}`} : null;
+    return displayFrame
+      ? {uri: `data:image/jpeg;base64,${displayFrame}`}
+      : null;
   }, [displayFrame]);
 
   /**
