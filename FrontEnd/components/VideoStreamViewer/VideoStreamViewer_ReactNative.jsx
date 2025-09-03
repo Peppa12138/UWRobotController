@@ -7,9 +7,13 @@ import {
   Image,
   Alert,
   Dimensions,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import IPDetector from '../../utils/IPDetector';
+import ScreenRecord from 'react-native-screen-record';
+import RNFS from 'react-native-fs';
 
 const {width, height} = Dimensions.get('window');
 
@@ -36,6 +40,7 @@ const VideoStreamViewer = ({
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const [isStreaming, setIsStreaming] = useState(false);
   const [displayFrame, setDisplayFrame] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
 
   // 极简状态管理 - 只保留最基本的统计
   const frameStatsRef = useRef({
@@ -338,6 +343,107 @@ const VideoStreamViewer = ({
     connectToVideoStream();
   }, []);
 
+  /**
+   * 请求录制权限
+   */
+  const requestRecordingPermissions = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        ]);
+        
+        return (
+          granted['android.permission.RECORD_AUDIO'] === PermissionsAndroid.RESULTS.GRANTED &&
+          granted['android.permission.WRITE_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED &&
+          granted['android.permission.READ_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED
+        );
+      } catch (err) {
+        console.warn('权限请求失败:', err);
+        return false;
+      }
+    }
+    return true; // iOS权限在Info.plist中配置
+  };
+
+  /**
+   * 开始录制
+   */
+  const startRecording = useCallback(async () => {
+    try {
+      // 检查权限
+      const hasPermission = await requestRecordingPermissions();
+      if (!hasPermission) {
+        Alert.alert('权限不足', '录制功能需要音频录制和存储权限');
+        return;
+      }
+
+      // 开始屏幕录制
+      await ScreenRecord.startRecording();
+      setIsRecording(true);
+      console.log('开始录制屏幕');
+      
+      Alert.alert('录制开始', '已开始录制视频流');
+    } catch (error) {
+      console.error('开始录制失败:', error);
+      Alert.alert('录制失败', '无法开始录制，请重试');
+    }
+  }, []);
+
+  /**
+   * 停止录制并保存到桌面
+   */
+  const stopRecording = useCallback(async () => {
+    try {
+      // 停止录制
+      const videoPath = await ScreenRecord.stopRecording();
+      setIsRecording(false);
+      console.log('录制完成，临时文件路径:', videoPath);
+
+      if (videoPath) {
+        // 获取桌面路径（Android下通常是Downloads目录）
+        const desktopPath = Platform.OS === 'android' 
+          ? RNFS.DownloadDirectoryPath 
+          : RNFS.DocumentDirectoryPath;
+        
+        // 生成文件名
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const fileName = `UWRobot_Recording_${timestamp}.mp4`;
+        const destinationPath = `${desktopPath}/${fileName}`;
+
+        // 复制文件到目标位置
+        await RNFS.copyFile(videoPath, destinationPath);
+        
+        // 删除临时文件
+        await RNFS.unlink(videoPath);
+        
+        console.log('录制文件已保存到:', destinationPath);
+        Alert.alert(
+          '录制完成', 
+          `视频已保存到:\n${Platform.OS === 'android' ? 'Downloads' : 'Documents'}/${fileName}`,
+          [{ text: '确定' }]
+        );
+      }
+    } catch (error) {
+      setIsRecording(false);
+      console.error('停止录制失败:', error);
+      Alert.alert('录制失败', '停止录制时发生错误');
+    }
+  }, []);
+
+  /**
+   * 切换录制状态
+   */
+  const handleToggleRecording = useCallback(() => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  }, [isRecording, startRecording, stopRecording]);
+
   return (
     <View style={[styles.container, style]}>
       {/* 视频显示区域 */}
@@ -401,6 +507,27 @@ const VideoStreamViewer = ({
           />
           <Text style={styles.controlText}>
             {isStreaming ? '停止' : '开始'}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.controlButton,
+            isRecording && styles.recordingButton
+          ]}
+          onPress={handleToggleRecording}>
+          <Image
+            source={require('../public/Images/wave.png')}
+            style={[
+              styles.controlIcon,
+              isRecording && styles.recordingIcon
+            ]}
+          />
+          <Text style={[
+            styles.controlText,
+            isRecording && styles.recordingText
+          ]}>
+            {isRecording ? '停止' : '录制'}
           </Text>
         </TouchableOpacity>
 
@@ -534,9 +661,9 @@ const styles = StyleSheet.create({
   },
   controlButton: {
     alignItems: 'center',
-    minWidth: 70,
+    minWidth: 60,
     paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 15,
     borderWidth: 1,
@@ -553,6 +680,17 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '500',
     textAlign: 'center',
+  },
+  recordingButton: {
+    backgroundColor: 'rgba(255, 68, 68, 0.3)',
+    borderColor: '#FF4444',
+  },
+  recordingIcon: {
+    tintColor: '#FF4444',
+  },
+  recordingText: {
+    color: '#FF4444',
+    fontWeight: 'bold',
   },
 });
 
