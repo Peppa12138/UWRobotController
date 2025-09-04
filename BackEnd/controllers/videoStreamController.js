@@ -165,7 +165,7 @@ class VideoStreamController {
             return;
         }
 
-        console.log(`收到视频帧: clientId=${clientId}, frameNumber=${data.frameNumber}, frameDataLength=${data.frameData?.length}`);
+        // console.log(`收到视频帧: clientId=${clientId}, frameNumber=${data.frameNumber}, frameDataLength=${data.frameData?.length}`);
 
         // 转发视频帧给所有观看者
         this.broadcastToViewers({
@@ -189,7 +189,7 @@ class VideoStreamController {
 
         client.clientType = 'viewer';
 
-        console.log(`客户端 ${clientId} 加入为观看者`);
+        // console.log(`客户端 ${clientId} 加入为观看者`);
 
         // 发送当前流状态
         this.sendToClient(clientId, {
@@ -234,7 +234,7 @@ class VideoStreamController {
      */
     broadcastToViewers(data) {
         const viewers = Array.from(this.clients.values()).filter(client => client.clientType === 'viewer');
-        console.log(`广播消息给 ${viewers.length} 个观看者, 消息类型: ${data.type}`);
+        // console.log(`广播消息给 ${viewers.length} 个观看者, 消息类型: ${data.type}`);
 
         this.clients.forEach((client, clientId) => {
             if (client.clientType === 'viewer' && client.ws.readyState === WebSocket.OPEN) {
