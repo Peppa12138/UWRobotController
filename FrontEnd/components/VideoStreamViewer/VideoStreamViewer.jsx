@@ -7,9 +7,13 @@ import {
   Alert,
   Animated,
   Easing,
+  PermissionsAndroid,
+  Platform,
+  Linking,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
 import IPDetector from '../../utils/IPDetector';
+import RNFS from 'react-native-fs';
 
 const VideoStreamViewer = ({
   style,
@@ -20,13 +24,166 @@ const VideoStreamViewer = ({
   const [wsConnection, setWsConnection] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const webViewRef = useRef(null);
 
   // 抽屉动画相关
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerAnim = useRef(new Animated.Value(0)).current;
 
-  // WebView HTML内容 - 使用Canvas直接渲染
+  // 改进的权限请求函数
+  const requestStoragePermission = async () => {
+    if (Platform.OS !== 'android') {
+      return true;
+    }
+
+    try {
+      const androidVersion = Platform.constants['Release'];
+      console.log('Android 版本:', androidVersion);
+
+      if (androidVersion >= 13) {
+        // Android 13+ 使用新的媒体权限
+        const permissions = [
+          PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
+          PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+        ];
+
+        const results = await PermissionsAndroid.requestMultiple(permissions);
+        const allGranted = Object.values(results).every(
+          result => result === PermissionsAndroid.RESULTS.GRANTED,
+        );
+
+        console.log('Android 13+ 权限结果:', results);
+        return allGranted;
+      } else if (androidVersion >= 11) {
+        // Android 11-12 尝试获取管理所有文件权限
+        const permissions = [
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        ];
+
+        const results = await PermissionsAndroid.requestMultiple(permissions);
+        const basicGranted = Object.values(results).every(
+          result => result === PermissionsAndroid.RESULTS.GRANTED,
+        );
+
+        console.log('Android 11-12 基础权限结果:', results);
+
+        // 如果基础权限被拒绝，尝试请求管理所有文件权限
+        if (!basicGranted) {
+          try {
+            const managePermission = await PermissionsAndroid.request(
+              PermissionsAndroid.PERMISSIONS.MANAGE_EXTERNAL_STORAGE,
+              {
+                title: '文件管理权限',
+                message: '需要文件管理权限来保存录制的视频到可访问的位置',
+                buttonNeutral: '稍后询问',
+                buttonNegative: '取消',
+                buttonPositive: '确定',
+              },
+            );
+            return managePermission === PermissionsAndroid.RESULTS.GRANTED;
+          } catch (error) {
+            console.log('管理存储权限请求失败:', error);
+            return basicGranted;
+          }
+        }
+
+        return basicGranted;
+      } else {
+        // Android 10 及以下
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: '存储权限',
+            message: '应用需要存储权限来保存录制的视频文件',
+            buttonNeutral: '稍后询问',
+            buttonNegative: '取消',
+            buttonPositive: '确定',
+          },
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      }
+    } catch (err) {
+      console.error('权限请求失败:', err);
+      return false;
+    }
+  };
+
+  // 获取可访问的保存路径
+  const getSavePath = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const androidVersion = Platform.constants['Release'];
+
+        // 尝试不同的公共目录路径
+        const possiblePaths = [
+          // 外部存储的下载目录
+          `${RNFS.ExternalStorageDirectoryPath}/Download/VideoRecordings`,
+          // 外部存储的影片目录
+          `${RNFS.ExternalStorageDirectoryPath}/Movies/VideoRecordings`,
+          // DCIM目录（相机目录）
+          `${RNFS.ExternalStorageDirectoryPath}/DCIM/VideoRecordings`,
+          // 公共下载目录
+          RNFS.DownloadDirectoryPath,
+        ];
+
+        for (const path of possiblePaths) {
+          try {
+            console.log('尝试路径:', path);
+
+            // 检查父目录是否存在
+            const parentDir = path.substring(0, path.lastIndexOf('/'));
+            const parentExists = await RNFS.exists(parentDir);
+
+            if (parentExists) {
+              // 尝试创建或访问目录
+              const dirExists = await RNFS.exists(path);
+              if (!dirExists) {
+                await RNFS.mkdir(path);
+              }
+
+              // 测试写入权限
+              const testFile = `${path}/test_write.txt`;
+              await RNFS.writeFile(testFile, 'test', 'utf8');
+              await RNFS.unlink(testFile);
+
+              console.log('成功的保存路径:', path);
+              return path;
+            }
+          } catch (error) {
+            console.log(`路径 ${path} 不可用:`, error.message);
+            continue;
+          }
+        }
+
+        // 如果所有公共路径都失败，使用应用可访问的目录
+        console.log('使用备用路径: ExternalDirectoryPath');
+        return RNFS.ExternalDirectoryPath || RNFS.DocumentDirectoryPath;
+      } catch (error) {
+        console.error('获取保存路径失败:', error);
+        return RNFS.DocumentDirectoryPath;
+      }
+    } else {
+      return RNFS.DocumentDirectoryPath;
+    }
+  };
+
+  // 检查路径是否为用户可访问
+  const isUserAccessiblePath = path => {
+    const userAccessiblePaths = [
+      '/storage/emulated/0/Download',
+      '/storage/emulated/0/Movies',
+      '/storage/emulated/0/DCIM',
+      '/sdcard/Download',
+      '/sdcard/Movies',
+      '/sdcard/DCIM',
+    ];
+
+    return userAccessiblePaths.some(accessible => path.includes(accessible));
+  };
+
+  // WebView HTML内容保持不变...
   const webViewHTML = `
     <!DOCTYPE html>
     <html>
@@ -102,12 +259,32 @@ const VideoStreamViewer = ({
                 display: block; 
                 animation: liveBlink 1.5s infinite;
             }
+            #recordIndicator {
+                background: linear-gradient(45deg, #FF0000, #FF4444);
+                color: white;
+                font-weight: bold;
+                font-size: 12px;
+                padding: 6px 12px;
+                border-radius: 15px;
+                display: none;
+                box-shadow: 0 3px 8px rgba(255, 0, 0, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                margin-left: 10px;
+            }
+            #recordIndicator.recording { 
+                display: block; 
+                animation: recordBlink 1s infinite;
+            }
             @keyframes liveBlink {
                 0%, 50% { opacity: 1; transform: scale(1); }
                 25% { transform: scale(1.05); }
                 51%, 100% { opacity: 0.85; }
             }
-            /* 新增：状态字体描边样式 */
+            @keyframes recordBlink {
+                0% { opacity: 1; }
+                50% { opacity: 0.5; }
+                100% { opacity: 1; }
+            }
             #statusText {
                 color: #fff;
                 font-size: 18px;
@@ -128,7 +305,10 @@ const VideoStreamViewer = ({
                 <div id="statusIndicator"></div>
                 <span id="statusText">连接中...</span>
             </div>
-            <div id="liveIndicator">● LIVE</div>
+            <div style="display: flex; align-items: center;">
+                <div id="liveIndicator">● LIVE</div>
+                <div id="recordIndicator">● REC</div>
+            </div>
         </div>
 
         <script>
@@ -140,7 +320,7 @@ const VideoStreamViewer = ({
                     this.lastFrameTime = Date.now();
                     this.fps = 0;
                     this.frameBuffer = [];
-                    this.maxBufferSize = 3; // 缓冲3帧减少卡顿
+                    this.maxBufferSize = 3;
                     this.isProcessing = false;
                     this.performanceMonitor = {
                         avgRenderTime: 0,
@@ -148,34 +328,72 @@ const VideoStreamViewer = ({
                         totalFrames: 0
                     };
                     
-                    // 状态元素
                     this.statusIndicator = document.getElementById('statusIndicator');
                     this.statusText = document.getElementById('statusText');
                     this.liveIndicator = document.getElementById('liveIndicator');
+                    this.recordIndicator = document.getElementById('recordIndicator');
+                    
+                    this.mediaRecorder = null;
+                    this.recordedChunks = [];
+                    this.isRecording = false;
+                    this.canvasStream = null;
                     
                     this.initializeCanvas();
                     this.setupMessageHandler();
                     this.startPerformanceMonitoring();
+                    this.initializeRecording();
                 }
 
                 initializeCanvas() {
-                    // 设置Canvas尺寸
                     const resizeCanvas = () => {
                         this.canvas.width = window.innerWidth;
                         this.canvas.height = window.innerHeight;
                         console.log('Canvas初始化:', this.canvas.width, 'x', this.canvas.height);
+                        
+                        if (this.canvasStream) {
+                            this.canvasStream = this.canvas.captureStream(30);
+                        }
                     };
                     
                     resizeCanvas();
                     window.addEventListener('resize', resizeCanvas);
                     
-                    // 清空画布
                     this.ctx.fillStyle = '#000';
                     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
                 }
 
+                initializeRecording() {
+                    try {
+                        if (!this.canvas.captureStream) {
+                            console.error('浏览器不支持 captureStream');
+                            this.postMessage({
+                                type: 'recording_error',
+                                error: '浏览器不支持录制功能'
+                            });
+                            return;
+                        }
+
+                        if (!window.MediaRecorder) {
+                            console.error('浏览器不支持 MediaRecorder');
+                            this.postMessage({
+                                type: 'recording_error',
+                                error: '浏览器不支持录制功能'
+                            });
+                            return;
+                        }
+
+                        this.canvasStream = this.canvas.captureStream(30);
+                        console.log('Canvas流初始化成功');
+                    } catch (error) {
+                        console.error('Canvas流初始化失败:', error);
+                        this.postMessage({
+                            type: 'recording_error',
+                            error: 'Canvas流初始化失败: ' + error.message
+                        });
+                    }
+                }
+
                 setupMessageHandler() {
-                    // 监听来自React Native的消息
                     window.addEventListener('message', (event) => {
                         try {
                             const data = JSON.parse(event.data);
@@ -185,7 +403,6 @@ const VideoStreamViewer = ({
                         }
                     });
 
-                    // Android WebView消息处理
                     if (window.ReactNativeWebView) {
                         document.addEventListener('message', (event) => {
                             try {
@@ -209,8 +426,146 @@ const VideoStreamViewer = ({
                         case 'clear_canvas':
                             this.clearCanvas();
                             break;
+                        case 'start_recording':
+                            this.startRecording();
+                            break;
+                        case 'stop_recording':
+                            this.stopRecording();
+                            break;
                         default:
                             console.log('未知消息类型:', data.type);
+                    }
+                }
+
+                startRecording() {
+                    try {
+                        if (this.isRecording) {
+                            console.log('已在录制中');
+                            return;
+                        }
+
+                        if (!this.canvasStream) {
+                            this.canvasStream = this.canvas.captureStream(30);
+                        }
+
+                        let mimeType = 'video/webm;codecs=vp9';
+                        if (!MediaRecorder.isTypeSupported(mimeType)) {
+                            mimeType = 'video/webm;codecs=vp8';
+                            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                                mimeType = 'video/webm';
+                                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                                    throw new Error('浏览器不支持WebM录制格式');
+                                }
+                            }
+                        }
+
+                        this.recordedChunks = [];
+                        this.mediaRecorder = new MediaRecorder(this.canvasStream, {
+                            mimeType: mimeType
+                        });
+
+                        this.mediaRecorder.ondataavailable = (event) => {
+                            if (event.data.size > 0) {
+                                this.recordedChunks.push(event.data);
+                                console.log('录制数据块大小:', event.data.size);
+                            }
+                        };
+
+                        this.mediaRecorder.onstop = () => {
+                            this.handleRecordingStop();
+                        };
+
+                        this.mediaRecorder.onerror = (error) => {
+                            console.error('MediaRecorder错误:', error);
+                            this.postMessage({
+                                type: 'recording_error',
+                                error: 'MediaRecorder错误: ' + error.message
+                            });
+                        };
+
+                        this.mediaRecorder.start(1000);
+                        this.isRecording = true;
+                        
+                        this.recordIndicator.className = 'recording';
+                        
+                        this.postMessage({
+                            type: 'recording_started'
+                        });
+
+                        console.log('开始录制，使用格式:', mimeType);
+                    } catch (error) {
+                        console.error('启动录制失败:', error);
+                        this.postMessage({
+                            type: 'recording_error',
+                            error: '启动录制失败: ' + error.message
+                        });
+                    }
+                }
+
+                stopRecording() {
+                    try {
+                        if (!this.isRecording || !this.mediaRecorder) {
+                            console.log('未在录制中');
+                            return;
+                        }
+
+                        this.mediaRecorder.stop();
+                        this.isRecording = false;
+                        this.recordIndicator.className = '';
+                        
+                        console.log('停止录制');
+                    } catch (error) {
+                        console.error('停止录制失败:', error);
+                        this.postMessage({
+                            type: 'recording_error',
+                            error: '停止录制失败: ' + error.message
+                        });
+                    }
+                }
+
+                handleRecordingStop() {
+                    try {
+                        if (this.recordedChunks.length === 0) {
+                            throw new Error('没有录制到任何数据');
+                        }
+
+                        const blob = new Blob(this.recordedChunks, {
+                            type: 'video/webm'
+                        });
+
+                        console.log('录制完成，总数据块:', this.recordedChunks.length, '文件大小:', blob.size);
+
+                        if (blob.size === 0) {
+                            throw new Error('录制文件为空');
+                        }
+
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const arrayBuffer = reader.result;
+                            const uint8Array = new Uint8Array(arrayBuffer);
+                            const base64 = btoa(String.fromCharCode.apply(null, uint8Array));
+                            
+                            this.postMessage({
+                                type: 'recording_completed',
+                                videoData: base64,
+                                size: blob.size
+                            });
+                        };
+                        
+                        reader.onerror = () => {
+                            this.postMessage({
+                                type: 'recording_error',
+                                error: '读取录制文件失败'
+                            });
+                        };
+                        
+                        reader.readAsArrayBuffer(blob);
+                    } catch (error) {
+                        console.error('处理录制完成失败:', error);
+                        this.postMessage({
+                            type: 'recording_error',
+                            error: '处理录制完成失败: ' + error.message
+                        });
                     }
                 }
 
@@ -220,10 +575,9 @@ const VideoStreamViewer = ({
                         return;
                     }
 
-                    // 帧缓冲管理
                     this.frameBuffer.push({ frameData, frameNumber, timestamp: Date.now() });
                     if (this.frameBuffer.length > this.maxBufferSize) {
-                        this.frameBuffer.shift(); // 移除最老的帧
+                        this.frameBuffer.shift();
                     }
 
                     this.processNextFrame();
@@ -240,44 +594,36 @@ const VideoStreamViewer = ({
                     
                     img.onload = () => {
                         try {
-                            // 使用requestAnimationFrame优化渲染
                             requestAnimationFrame(() => {
-                                // 清空画布
                                 this.ctx.fillStyle = '#000';
                                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
                                 
-                                // 计算居中显示的位置和尺寸
                                 const canvasAspect = this.canvas.width / this.canvas.height;
                                 const imgAspect = img.width / img.height;
                                 
                                 let drawWidth, drawHeight, drawX, drawY;
                                 
                                 if (imgAspect > canvasAspect) {
-                                    // 图片更宽，以宽度为准
                                     drawWidth = this.canvas.width;
                                     drawHeight = drawWidth / imgAspect;
                                     drawX = 0;
                                     drawY = (this.canvas.height - drawHeight) / 2;
                                 } else {
-                                    // 图片更高，以高度为准
                                     drawHeight = this.canvas.height;
                                     drawWidth = drawHeight * imgAspect;
                                     drawX = (this.canvas.width - drawWidth) / 2;
                                     drawY = 0;
                                 }
                                 
-                                // 优化的图像绘制
                                 this.ctx.imageSmoothingEnabled = true;
                                 this.ctx.imageSmoothingQuality = 'medium';
                                 this.ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
                                 
-                                // 更新统计
                                 this.updateStats(frameNumber, startTime);
                                 this.isProcessing = false;
                                 
-                                // 处理下一帧
                                 if (this.frameBuffer.length > 0) {
-                                    setTimeout(() => this.processNextFrame(), 16); // ~60fps限制
+                                    setTimeout(() => this.processNextFrame(), 16);
                                 }
                             });
                         } catch (error) {
@@ -309,7 +655,6 @@ const VideoStreamViewer = ({
                         this.lastFrameTime = now;
                         this.performanceMonitor.totalFrames = 0;
                         
-                        // 发送优化的统计信息回React Native
                         this.postMessage({
                             type: 'stats_update',
                             fps: this.fps.toFixed(1),
@@ -325,12 +670,10 @@ const VideoStreamViewer = ({
 
                 startPerformanceMonitoring() {
                     setInterval(() => {
-                        // 如果平均渲染时间过长，清理缓冲区
                         if (this.performanceMonitor.avgRenderTime > 50) {
-                            this.frameBuffer = this.frameBuffer.slice(-1); // 只保留最新帧
+                            this.frameBuffer = this.frameBuffer.slice(-1);
                         }
                         
-                        // 重置掉帧计数
                         if (this.performanceMonitor.droppedFrames > 100) {
                             this.performanceMonitor.droppedFrames = 0;
                         }
@@ -338,7 +681,6 @@ const VideoStreamViewer = ({
                 }
 
                 updateStatus(status, isStreaming) {
-                    // 更新连接状态
                     this.statusIndicator.className = status;
                     
                     switch (status) {
@@ -352,7 +694,6 @@ const VideoStreamViewer = ({
                             this.statusText.textContent = '连接中...';
                     }
                     
-                    // 更新LIVE指示器
                     if (isStreaming) {
                         this.liveIndicator.className = 'show';
                         this.liveIndicator.textContent = '● LIVE';
@@ -380,7 +721,6 @@ const VideoStreamViewer = ({
                 }
             }
 
-            // 初始化Canvas视频流
             const canvasStream = new CanvasVideoStream();
             console.log('Canvas视频流系统初始化完成');
         </script>
@@ -388,7 +728,7 @@ const VideoStreamViewer = ({
     </html>
   `;
 
-  // 获取WebSocket URL
+  // 保持原有的WebSocket相关代码...
   const getWebSocketUrl = () => {
     const websocketURL = IPDetector.getWebSocketURL();
     console.log('[VideoStreamViewer] WebView模式使用WebSocket:', websocketURL);
@@ -406,7 +746,6 @@ const VideoStreamViewer = ({
     };
   }, []);
 
-  // 连接到视频流WebSocket服务器
   const connectToVideoStream = () => {
     try {
       const wsUrl = getWebSocketUrl();
@@ -418,7 +757,6 @@ const VideoStreamViewer = ({
         console.log('WebView模式WebSocket连接已建立');
         setConnectionStatus('connected');
 
-        // 更新WebView状态
         sendToWebView({
           type: 'connection_status',
           status: 'connected',
@@ -466,7 +804,6 @@ const VideoStreamViewer = ({
           onConnectionChange(false);
         }
 
-        // 尝试重连
         setTimeout(() => {
           if (!wsConnection || wsConnection.readyState === WebSocket.CLOSED) {
             connectToVideoStream();
@@ -481,7 +818,6 @@ const VideoStreamViewer = ({
     }
   };
 
-  // 处理WebSocket消息
   const handleWebSocketMessage = data => {
     switch (data.type) {
       case 'welcome':
@@ -516,7 +852,6 @@ const VideoStreamViewer = ({
         sendToWebView({type: 'clear_canvas'});
         break;
       case 'video_frame':
-        // 直接转发给WebView进行Canvas渲染
         sendToWebView({
           type: 'video_frame',
           frameData: data.frameData,
@@ -528,14 +863,12 @@ const VideoStreamViewer = ({
     }
   };
 
-  // 发送消息到WebView
   const sendToWebView = message => {
     if (webViewRef.current) {
       webViewRef.current.postMessage(JSON.stringify(message));
     }
   };
 
-  // 处理来自WebView的消息
   const handleWebViewMessage = event => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
@@ -550,12 +883,177 @@ const VideoStreamViewer = ({
             });
           }
           break;
+        case 'recording_started':
+          console.log('录制已开始');
+          break;
+        case 'recording_completed':
+          handleRecordingCompleted(data.videoData, data.size);
+          break;
+        case 'recording_error':
+          Alert.alert('录制错误', data.error);
+          setIsRecording(false);
+          break;
         default:
           console.log('来自WebView的消息:', data);
       }
     } catch (error) {
       console.error('处理WebView消息失败:', error);
     }
+  };
+
+  // 改进的录制完成处理函数
+  const handleRecordingCompleted = async (videoData, size) => {
+    try {
+      const hasPermission = await requestStoragePermission();
+      if (!hasPermission) {
+        Alert.alert(
+          '权限错误',
+          '无法获取存储权限，请在设置中手动开启应用的存储权限',
+          [
+            {text: '取消'},
+            {text: '去设置', onPress: () => Linking.openSettings()},
+          ],
+        );
+        setIsRecording(false);
+        return;
+      }
+
+      // 生成文件名
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const fileName = `video_recording_${timestamp}.webm`;
+
+      // 获取保存路径
+      const savePath = await getSavePath();
+      const filePath = `${savePath}/${fileName}`;
+
+      console.log('保存录制文件到:', filePath);
+
+      // 将base64转换为文件
+      await RNFS.writeFile(filePath, videoData, 'base64');
+
+      console.log('录制文件已保存:', filePath);
+
+      // 检查文件是否创建成功
+      const fileExists = await RNFS.exists(filePath);
+      if (fileExists) {
+        const fileStats = await RNFS.stat(filePath);
+
+        // 检查是否为用户可访问路径
+        const isAccessible = isUserAccessiblePath(filePath);
+
+        let locationMessage = '';
+        let accessibilityMessage = '';
+
+        if (filePath.includes('VideoRecordings')) {
+          if (filePath.includes('Download')) {
+            locationMessage = '下载文件夹 > VideoRecordings';
+          } else if (filePath.includes('Movies')) {
+            locationMessage = '影片文件夹 > VideoRecordings';
+          } else if (filePath.includes('DCIM')) {
+            locationMessage = '相机文件夹 > VideoRecordings';
+          } else {
+            locationMessage = 'VideoRecordings 文件夹';
+          }
+        } else if (filePath.includes('Download')) {
+          locationMessage = '下载文件夹';
+        } else {
+          locationMessage = '应用目录';
+        }
+
+        if (isAccessible) {
+          accessibilityMessage = '\n✅ 可通过文件管理器访问';
+        } else {
+          accessibilityMessage = '\n⚠️ 仅应用内可访问';
+        }
+
+        Alert.alert(
+          '🎥 录制完成',
+          `视频已保存成功！\n\n📁 文件名: ${fileName}\n📊 文件大小: ${(
+            fileStats.size /
+            1024 /
+            1024
+          ).toFixed(
+            2,
+          )} MB\n📍 保存位置: ${locationMessage}${accessibilityMessage}\n\n完整路径:\n${filePath}`,
+          [
+            {text: '确定'},
+            isAccessible && {
+              text: '打开文件夹',
+              onPress: async () => {
+                try {
+                  // 尝试打开文件管理器到特定位置
+                  const intent = `content://com.android.externalstorage.documents/document/primary:${savePath.replace(
+                    '/storage/emulated/0/',
+                    '',
+                  )}`;
+                  await Linking.openURL(intent);
+                } catch (error) {
+                  // 备用方案：打开通用文件管理器
+                  try {
+                    await Linking.openURL(
+                      'content://com.android.externalstorage.documents/document/primary:',
+                    );
+                  } catch (fallbackError) {
+                    Alert.alert(
+                      '提示',
+                      '无法自动打开文件管理器，请手动查找文件',
+                    );
+                  }
+                }
+              },
+            },
+          ].filter(Boolean),
+        );
+      } else {
+        throw new Error('文件保存失败，文件不存在');
+      }
+
+      setIsRecording(false);
+    } catch (error) {
+      console.error('保存录制文件失败:', error);
+      Alert.alert(
+        '保存失败',
+        `无法保存录制文件: ${error.message}\n\n请检查应用是否有存储权限`,
+        [
+          {text: '确定'},
+          {text: '去设置', onPress: () => Linking.openSettings()},
+        ],
+      );
+      setIsRecording(false);
+    }
+  };
+
+  // 开始录制
+  const startRecording = async () => {
+    try {
+      console.log('尝试开始录制...');
+
+      const hasPermission = await requestStoragePermission();
+      if (!hasPermission) {
+        Alert.alert(
+          '权限错误',
+          '无法获取存储权限，无法录制\n\n请在手机设置中手动开启应用的存储权限',
+          [
+            {text: '取消'},
+            {text: '去设置', onPress: () => Linking.openSettings()},
+          ],
+        );
+        return;
+      }
+
+      console.log('权限获取成功，开始录制');
+      setIsRecording(true);
+      sendToWebView({type: 'start_recording'});
+    } catch (error) {
+      console.error('开始录制失败:', error);
+      Alert.alert('录制错误', '无法开始录制: ' + error.message);
+    }
+  };
+
+  // 停止录制
+  const stopRecording = () => {
+    console.log('停止录制');
+    sendToWebView({type: 'stop_recording'});
   };
 
   // 摄像头控制函数
@@ -597,15 +1095,14 @@ const VideoStreamViewer = ({
     }
   };
 
-  // Drawer translateX动画, 按钮从左下角圆圈右侧滑出
+  // Drawer translateX动画
   const drawerTranslate = drawerAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 110], // drawer最大宽度
+    outputRange: [0, 110],
   });
 
   return (
     <View style={[styles.container, style]}>
-      {/* WebView Canvas视频渲染 */}
       <View style={styles.webViewContainer}>
         <WebView
           ref={webViewRef}
@@ -629,9 +1126,7 @@ const VideoStreamViewer = ({
         />
       </View>
 
-      {/* 右拉抽屉控制按钮组 */}
       <View style={styles.drawerWrapper}>
-        {/* 抽屉按钮（圆圈） */}
         <TouchableOpacity
           style={styles.drawerTrigger}
           activeOpacity={0.85}
@@ -640,7 +1135,6 @@ const VideoStreamViewer = ({
             <Text style={styles.drawerIcon}>≡</Text>
           </View>
         </TouchableOpacity>
-        {/* 抽屉内容（按钮组） */}
         <Animated.View
           style={[
             styles.drawer,
@@ -678,6 +1172,24 @@ const VideoStreamViewer = ({
               {isStreaming ? '中断' : '开始'}
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.drawerButton, isRecording && styles.recordingButton]}
+            onPress={() => {
+              toggleDrawer();
+              if (isRecording) {
+                stopRecording();
+              } else {
+                startRecording();
+              }
+            }}>
+            <Text
+              style={[
+                styles.drawerButtonText,
+                isRecording && styles.recordingButtonText,
+              ]}>
+              {isRecording ? '停止' : '录制'}
+            </Text>
+          </TouchableOpacity>
         </Animated.View>
       </View>
     </View>
@@ -703,9 +1215,8 @@ const styles = StyleSheet.create({
   },
   webView: {
     flex: 1,
-    backgroundColor: '#000', // WebView内容覆盖
+    backgroundColor: '#000',
   },
-  // Drawer（抽屉）相关样式
   drawerWrapper: {
     position: 'absolute',
     left: 18,
@@ -774,7 +1285,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-  // 不再需要原先的controlsContainer
+  recordingButton: {
+    backgroundColor: 'rgba(255, 0, 0, 0.8)',
+    borderColor: 'rgba(255, 0, 0, 0.9)',
+  },
+  recordingButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
 });
 
 export default VideoStreamViewer;
