@@ -1,5 +1,13 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {View, StyleSheet, TouchableOpacity, Text, Alert} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  Alert,
+  Animated,
+  Easing,
+} from 'react-native';
 import {WebView} from 'react-native-webview';
 import IPDetector from '../../utils/IPDetector';
 
@@ -14,6 +22,10 @@ const VideoStreamViewer = ({
   const [isStreaming, setIsStreaming] = useState(false);
   const webViewRef = useRef(null);
 
+  // 抽屉动画相关
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerAnim = useRef(new Animated.Value(0)).current;
+
   // WebView HTML内容 - 使用Canvas直接渲染
   const webViewHTML = `
     <!DOCTYPE html>
@@ -25,7 +37,7 @@ const VideoStreamViewer = ({
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { 
-                background: #000; 
+                background:#e0f2ff; 
                 overflow: hidden; 
                 font-family: Arial, sans-serif;
             }
@@ -36,7 +48,7 @@ const VideoStreamViewer = ({
                 width: 100vw; 
                 height: 100vh; 
                 object-fit: cover;
-                background: #000;
+                background:#e0f2ff;
                 z-index: 1;
             }
             #statusBar {
@@ -44,18 +56,12 @@ const VideoStreamViewer = ({
                 top: 10px;
                 left: 20px;
                 right: 20px;
-                background: rgba(0, 0, 0, 0.9);
-                color: white;
                 padding: 10px 20px;
                 height: 40px;
-                border-radius: 25px;
                 font-size: 14px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                backdrop-filter: blur(15px);
-                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-                border: 1px solid rgba(255, 255, 255, 0.15);
                 z-index: 1000;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             }
@@ -100,6 +106,18 @@ const VideoStreamViewer = ({
                 0%, 50% { opacity: 1; transform: scale(1); }
                 25% { transform: scale(1.05); }
                 51%, 100% { opacity: 0.85; }
+            }
+            /* 新增：状态字体描边样式 */
+            #statusText {
+                color: #fff;
+                font-size: 18px;
+                font-weight: bold;
+                text-shadow:
+                  -1px -1px 0 #000,
+                   1px -1px 0 #000,
+                  -1px  1px 0 #000,
+                   1px  1px 0 #000;
+                letter-spacing: 1px;
             }
         </style>
     </head>
@@ -399,19 +417,19 @@ const VideoStreamViewer = ({
       ws.onopen = () => {
         console.log('WebView模式WebSocket连接已建立');
         setConnectionStatus('connected');
-        
+
         // 更新WebView状态
         sendToWebView({
           type: 'connection_status',
           status: 'connected',
-          isStreaming: false
+          isStreaming: false,
         });
 
         if (onConnectionChange) {
           onConnectionChange(true);
         }
 
-        ws.send(JSON.stringify({ type: 'join_as_viewer' }));
+        ws.send(JSON.stringify({type: 'join_as_viewer'}));
       };
 
       ws.onmessage = event => {
@@ -429,7 +447,7 @@ const VideoStreamViewer = ({
         sendToWebView({
           type: 'connection_status',
           status: 'error',
-          isStreaming: false
+          isStreaming: false,
         });
       };
 
@@ -437,11 +455,11 @@ const VideoStreamViewer = ({
         console.log('WebView模式WebSocket连接已关闭');
         setConnectionStatus('disconnected');
         setIsStreaming(false);
-        
+
         sendToWebView({
           type: 'connection_status',
           status: 'disconnected',
-          isStreaming: false
+          isStreaming: false,
         });
 
         if (onConnectionChange) {
@@ -475,7 +493,7 @@ const VideoStreamViewer = ({
         sendToWebView({
           type: 'connection_status',
           status: 'connected',
-          isStreaming: data.isStreaming
+          isStreaming: data.isStreaming,
         });
         break;
       case 'stream_started':
@@ -484,7 +502,7 @@ const VideoStreamViewer = ({
         sendToWebView({
           type: 'connection_status',
           status: 'connected',
-          isStreaming: true
+          isStreaming: true,
         });
         break;
       case 'stream_stopped':
@@ -493,16 +511,16 @@ const VideoStreamViewer = ({
         sendToWebView({
           type: 'connection_status',
           status: 'connected',
-          isStreaming: false
+          isStreaming: false,
         });
-        sendToWebView({ type: 'clear_canvas' });
+        sendToWebView({type: 'clear_canvas'});
         break;
       case 'video_frame':
         // 直接转发给WebView进行Canvas渲染
         sendToWebView({
           type: 'video_frame',
           frameData: data.frameData,
-          frameNumber: data.frameNumber
+          frameNumber: data.frameNumber,
         });
         break;
       default:
@@ -511,24 +529,24 @@ const VideoStreamViewer = ({
   };
 
   // 发送消息到WebView
-  const sendToWebView = (message) => {
+  const sendToWebView = message => {
     if (webViewRef.current) {
       webViewRef.current.postMessage(JSON.stringify(message));
     }
   };
 
   // 处理来自WebView的消息
-  const handleWebViewMessage = (event) => {
+  const handleWebViewMessage = event => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
-      
+
       switch (data.type) {
         case 'stats_update':
           if (onStatsUpdate) {
             onStatsUpdate({
               fps: parseFloat(data.fps),
               frameNumber: data.frameNumber,
-              mode: 'webview_canvas'
+              mode: 'webview_canvas',
             });
           }
           break;
@@ -559,13 +577,39 @@ const VideoStreamViewer = ({
     }
   };
 
+  // Drawer动画切换
+  const toggleDrawer = () => {
+    if (drawerOpen) {
+      Animated.timing(drawerAnim, {
+        toValue: 0,
+        duration: 220,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }).start(() => setDrawerOpen(false));
+    } else {
+      setDrawerOpen(true);
+      Animated.timing(drawerAnim, {
+        toValue: 1,
+        duration: 220,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
+  // Drawer translateX动画, 按钮从左下角圆圈右侧滑出
+  const drawerTranslate = drawerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 110], // drawer最大宽度
+  });
+
   return (
     <View style={[styles.container, style]}>
       {/* WebView Canvas视频渲染 */}
       <View style={styles.webViewContainer}>
         <WebView
           ref={webViewRef}
-          source={{ html: webViewHTML }}
+          source={{html: webViewHTML}}
           style={styles.webView}
           onMessage={handleWebViewMessage}
           javaScriptEnabled={true}
@@ -576,7 +620,7 @@ const VideoStreamViewer = ({
           scrollEnabled={false}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
-          onError={(error) => {
+          onError={error => {
             console.error('WebView错误:', error);
           }}
           onLoad={() => {
@@ -585,27 +629,56 @@ const VideoStreamViewer = ({
         />
       </View>
 
-      {/* 控制按钮 */}
-      <View style={styles.controlsContainer}>
+      {/* 右拉抽屉控制按钮组 */}
+      <View style={styles.drawerWrapper}>
+        {/* 抽屉按钮（圆圈） */}
         <TouchableOpacity
-          style={styles.controlButton}
-          onPress={() => sendCameraControl('take_photo')}>
-          <Text style={styles.controlText}>拍照</Text>
+          style={styles.drawerTrigger}
+          activeOpacity={0.85}
+          onPress={toggleDrawer}>
+          <View style={styles.drawerCircle}>
+            <Text style={styles.drawerIcon}>≡</Text>
+          </View>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.controlButton}
-          onPress={() => sendCameraControl(isStreaming ? 'stop_streaming' : 'start_streaming')}>
-          <Text style={styles.controlText}>
-            {isStreaming ? '停止' : '开始'}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.controlButton}
-          onPress={() => connectToVideoStream()}>
-          <Text style={styles.controlText}>重连</Text>
-        </TouchableOpacity>
+        {/* 抽屉内容（按钮组） */}
+        <Animated.View
+          style={[
+            styles.drawer,
+            {
+              opacity: drawerAnim,
+              transform: [{translateX: drawerTranslate}],
+            },
+          ]}
+          pointerEvents={drawerOpen ? 'auto' : 'none'}>
+          <TouchableOpacity
+            style={styles.drawerButton}
+            onPress={() => {
+              toggleDrawer();
+              connectToVideoStream();
+            }}>
+            <Text style={styles.drawerButtonText}>重连</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.drawerButton}
+            onPress={() => {
+              toggleDrawer();
+              sendCameraControl('take_photo');
+            }}>
+            <Text style={styles.drawerButtonText}>拍照</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.drawerButton}
+            onPress={() => {
+              toggleDrawer();
+              sendCameraControl(
+                isStreaming ? 'stop_streaming' : 'start_streaming',
+              );
+            }}>
+            <Text style={styles.drawerButtonText}>
+              {isStreaming ? '中断' : '开始'}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     </View>
   );
@@ -614,7 +687,7 @@ const VideoStreamViewer = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#e0f2ff',
     position: 'absolute',
     top: 0,
     left: 0,
@@ -630,46 +703,78 @@ const styles = StyleSheet.create({
   },
   webView: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#000', // WebView内容覆盖
   },
-  controlsContainer: {
+  // Drawer（抽屉）相关样式
+  drawerWrapper: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    left: 18,
+    bottom: 22,
+    zIndex: 1010,
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 15,
-    paddingHorizontal: 25,
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
-    zIndex: 1000,
-  },
-  controlButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 15,
-    minWidth: 60,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
   },
-  controlText: {
+  drawerTrigger: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(40, 170, 255, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#2caafc',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.18,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  drawerCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(40, 170, 255, 1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  drawerIcon: {
+    fontSize: 24,
     color: 'white',
-    fontSize: 11,
-    fontWeight: '500',
-    textAlign: 'center',
+    fontWeight: 'bold',
+    letterSpacing: 2,
   },
+  drawer: {
+    position: 'absolute',
+    left: 60,
+    bottom: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(35,35,35,0.97)',
+    borderRadius: 18,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 3},
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
+    elevation: 6,
+    minWidth: 110,
+  },
+  drawerButton: {
+    marginHorizontal: 6,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    paddingVertical: 7,
+    paddingHorizontal: 15,
+    borderRadius: 13,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+    minWidth: 54,
+    alignItems: 'center',
+  },
+  drawerButtonText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  // 不再需要原先的controlsContainer
 });
 
 export default VideoStreamViewer;
