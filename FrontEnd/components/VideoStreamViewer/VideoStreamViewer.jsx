@@ -432,6 +432,9 @@ const VideoStreamViewer = ({
                         case 'stop_recording':
                             this.stopRecording();
                             break;
+                        case 'reset_recording_state':
+                            this.resetRecordingState();
+                            break;
                         default:
                             console.log('未知消息类型:', data.type);
                     }
@@ -504,18 +507,55 @@ const VideoStreamViewer = ({
 
                 stopRecording() {
                     try {
+                        console.log('接收到停止录制请求');
+                        
                         if (!this.isRecording || !this.mediaRecorder) {
-                            console.log('未在录制中');
+                            console.log('未在录制中，但确保状态一致');
+                            this.isRecording = false;
+                            this.recordIndicator.className = '';
+                            this.postMessage({
+                                type: 'recording_error',
+                                error: '当前未在录制中'
+                            });
                             return;
                         }
 
-                        this.mediaRecorder.stop();
-                        this.isRecording = false;
-                        this.recordIndicator.className = '';
+                        // 检查MediaRecorder状态
+                        if (this.mediaRecorder.state === 'inactive') {
+                            console.log('MediaRecorder已处于非活动状态');
+                            this.isRecording = false;
+                            this.recordIndicator.className = '';
+                            this.postMessage({
+                                type: 'recording_error',
+                                error: '录制器已停止'
+                            });
+                            return;
+                        }
+
+                        console.log('MediaRecorder状态:', this.mediaRecorder.state);
                         
-                        console.log('停止录制');
+                        // 设置超时，如果3秒内没有收到停止事件，强制重置状态
+                        const stopTimeout = setTimeout(() => {
+                            console.error('停止录制超时，强制重置状态');
+                            this.isRecording = false;
+                            this.recordIndicator.className = '';
+                            this.postMessage({
+                                type: 'recording_error',
+                                error: '停止录制超时，请重试'
+                            });
+                        }, 3000);
+
+                        // 停止录制
+                        this.mediaRecorder.stop();
+                        
+                        // 清除超时
+                        setTimeout(() => clearTimeout(stopTimeout), 100);
+                        
+                        console.log('停止录制指令已发送');
                     } catch (error) {
                         console.error('停止录制失败:', error);
+                        this.isRecording = false;
+                        this.recordIndicator.className = '';
                         this.postMessage({
                             type: 'recording_error',
                             error: '停止录制失败: ' + error.message
@@ -525,6 +565,12 @@ const VideoStreamViewer = ({
 
                 handleRecordingStop() {
                     try {
+                        console.log('开始处理录制完成事件');
+                        
+                        // 立即重置UI状态
+                        this.isRecording = false;
+                        this.recordIndicator.className = '';
+                        
                         if (this.recordedChunks.length === 0) {
                             throw new Error('没有录制到任何数据');
                         }
@@ -538,21 +584,79 @@ const VideoStreamViewer = ({
                         if (blob.size === 0) {
                             throw new Error('录制文件为空');
                         }
+                        
+                        // 检查文件大小，过大的文件可能导致转换失败
+                        const maxSize = 50 * 1024 * 1024; // 50MB限制
+                        if (blob.size > maxSize) {
+                            console.warn('录制文件过大:', blob.size, '字节，可能导致处理失败');
+                            this.postMessage({
+                                type: 'recording_error',
+                                error: '录制文件过大 (' + (blob.size / 1024 / 1024).toFixed(1) + 'MB)，请录制较短的视频'
+                            });
+                            return;
+                        }
+
+                        // 清理录制数据，防止内存泄漏
+                        const recordedData = [...this.recordedChunks];
+                        this.recordedChunks = [];
 
                         const reader = new FileReader();
-                        reader.onload = () => {
-                            const arrayBuffer = reader.result;
-                            const uint8Array = new Uint8Array(arrayBuffer);
-                            const base64 = btoa(String.fromCharCode.apply(null, uint8Array));
-                            
-                            this.postMessage({
-                                type: 'recording_completed',
-                                videoData: base64,
-                                size: blob.size
-                            });
+                        reader.onload = async () => {
+                            try {
+                                const arrayBuffer = reader.result;
+                                const uint8Array = new Uint8Array(arrayBuffer);
+                                
+                                console.log('开始转换文件，大小:', uint8Array.length, 'bytes');
+                                
+                                // 使用异步分块处理来避免栈溢出和阻塞
+                                const convertToBase64Async = async (bytes) => {
+                                    const chunkSize = 4096; // 减小块大小
+                                    let binary = '';
+                                    
+                                    for (let i = 0; i < bytes.length; i += chunkSize) {
+                                        const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+                                        
+                                        // 安全地转换每个块
+                                        try {
+                                            let chunkBinary = '';
+                                            for (let j = 0; j < chunk.length; j++) {
+                                                chunkBinary += String.fromCharCode(chunk[j]);
+                                            }
+                                            binary += chunkBinary;
+                                        } catch (chunkError) {
+                                            console.error('处理数据块失败:', chunkError);
+                                            throw chunkError;
+                                        }
+                                        
+                                        // 每处理一定数量的块后暂停一下，让出执行权
+                                        if (i % (chunkSize * 10) === 0) {
+                                            await new Promise(resolve => setTimeout(resolve, 1));
+                                            console.log('转换进度:', ((i / bytes.length) * 100).toFixed(1) + '%');
+                                        }
+                                    }
+                                    
+                                    return btoa(binary);
+                                };
+                                
+                                const base64 = await convertToBase64Async(uint8Array);
+                                
+                                console.log('文件转换完成，Base64长度:', base64.length);
+                                this.postMessage({
+                                    type: 'recording_completed',
+                                    videoData: base64,
+                                    size: blob.size
+                                });
+                            } catch (error) {
+                                console.error('文件转换失败:', error);
+                                this.postMessage({
+                                    type: 'recording_error',
+                                    error: '文件转换失败: ' + error.message
+                                });
+                            }
                         };
                         
                         reader.onerror = () => {
+                            console.error('文件读取失败');
                             this.postMessage({
                                 type: 'recording_error',
                                 error: '读取录制文件失败'
@@ -562,11 +666,36 @@ const VideoStreamViewer = ({
                         reader.readAsArrayBuffer(blob);
                     } catch (error) {
                         console.error('处理录制完成失败:', error);
+                        this.isRecording = false;
+                        this.recordIndicator.className = '';
                         this.postMessage({
                             type: 'recording_error',
                             error: '处理录制完成失败: ' + error.message
                         });
                     }
+                }
+
+                resetRecordingState() {
+                    console.log('重置录制状态');
+                    try {
+                        // 如果MediaRecorder还在录制，尝试停止
+                        if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+                            this.mediaRecorder.stop();
+                        }
+                    } catch (error) {
+                        console.error('停止MediaRecorder失败:', error);
+                    }
+                    
+                    // 重置所有录制相关状态
+                    this.isRecording = false;
+                    this.recordedChunks = [];
+                    this.recordIndicator.className = '';
+                    this.mediaRecorder = null;
+                    
+                    // 重新初始化录制功能
+                    this.initializeRecording();
+                    
+                    console.log('录制状态已重置');
                 }
 
                 renderFrame(frameData, frameNumber) {
@@ -885,25 +1014,39 @@ const VideoStreamViewer = ({
           break;
         case 'recording_started':
           console.log('录制已开始');
+          setIsRecording(true);
           break;
         case 'recording_completed':
+          console.log('录制完成，开始处理保存');
           handleRecordingCompleted(data.videoData, data.size);
           break;
         case 'recording_error':
-          Alert.alert('录制错误', data.error);
+          console.error('录制错误:', data.error);
           setIsRecording(false);
+          Alert.alert('录制错误', data.error);
           break;
         default:
           console.log('来自WebView的消息:', data);
       }
     } catch (error) {
       console.error('处理WebView消息失败:', error);
+      // 如果是录制相关的消息处理失败，重置录制状态
+      setIsRecording(false);
     }
   };
 
   // 改进的录制完成处理函数
   const handleRecordingCompleted = async (videoData, size) => {
+    console.log('开始处理录制完成，数据大小:', size);
+
     try {
+      // 确保录制状态被重置
+      setIsRecording(false);
+
+      if (!videoData || size === 0) {
+        throw new Error('录制数据为空或无效');
+      }
+
       const hasPermission = await requestStoragePermission();
       if (!hasPermission) {
         Alert.alert(
@@ -914,7 +1057,6 @@ const VideoStreamViewer = ({
             {text: '去设置', onPress: () => Linking.openSettings()},
           ],
         );
-        setIsRecording(false);
         return;
       }
 
@@ -1007,10 +1149,12 @@ const VideoStreamViewer = ({
       } else {
         throw new Error('文件保存失败，文件不存在');
       }
-
-      setIsRecording(false);
     } catch (error) {
       console.error('保存录制文件失败:', error);
+
+      // 确保录制状态被重置
+      setIsRecording(false);
+
       Alert.alert(
         '保存失败',
         `无法保存录制文件: ${error.message}\n\n请检查应用是否有存储权限`,
@@ -1019,8 +1163,15 @@ const VideoStreamViewer = ({
           {text: '去设置', onPress: () => Linking.openSettings()},
         ],
       );
-      setIsRecording(false);
     }
+  };
+
+  // 重置录制状态的辅助函数
+  const resetRecordingState = () => {
+    console.log('重置录制状态');
+    setIsRecording(false);
+    // 同时通知WebView重置状态
+    sendToWebView({type: 'reset_recording_state'});
   };
 
   // 开始录制
@@ -1052,8 +1203,22 @@ const VideoStreamViewer = ({
 
   // 停止录制
   const stopRecording = () => {
-    console.log('停止录制');
-    sendToWebView({type: 'stop_recording'});
+    console.log('用户点击停止录制');
+
+    // 先设置状态为停止中，避免重复点击
+    if (!isRecording) {
+      console.log('录制未开始，忽略停止请求');
+      return;
+    }
+
+    try {
+      sendToWebView({type: 'stop_recording'});
+      console.log('已发送停止录制指令到WebView');
+    } catch (error) {
+      console.error('发送停止录制指令失败:', error);
+      setIsRecording(false);
+      Alert.alert('错误', '停止录制失败: ' + error.message);
+    }
   };
 
   // 摄像头控制函数
@@ -1177,9 +1342,15 @@ const VideoStreamViewer = ({
             onPress={() => {
               toggleDrawer();
               if (isRecording) {
+                console.log('用户点击停止录制');
                 stopRecording();
               } else {
-                startRecording();
+                console.log('用户点击开始录制');
+                // 在开始录制前重置状态，确保干净的开始
+                resetRecordingState();
+                setTimeout(() => {
+                  startRecording();
+                }, 100);
               }
             }}>
             <Text
