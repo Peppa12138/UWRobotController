@@ -15,6 +15,9 @@ import {
 } from '@react-navigation/native';
 import axios from 'axios';
 
+// 导入字体管理器Hook
+import { useFontSize } from '../../utils/useFontSize';
+
 // 导入 VideoStreamViewer (WebView版本 - 避免频闪)
 import VideoStreamViewer from '../VideoStreamViewer/VideoStreamViewer';
 
@@ -31,7 +34,7 @@ const {width, height} = Dimensions.get('window');
 const ControlPanel = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const [fontSize, setFontSize] = useState(route.params?.fontSize || 14);
+  const fontSize = useFontSize(); // 使用自定义Hook
   const [controlMode, setControlMode] = useState(
     route.params?.controlMode || 1,
   );

@@ -11,12 +11,17 @@ import HomeSetting from '../components/HomeSetting/HomeSetting'; // 导入设置
 import AfterLoginScreen from '../components/AfterLogin/AfterLogin';
 // import UserInformation from '../components/UserInformation/UserInformation';
 // import ChangePassword from '../components/ChangePassword/ChangePassword';
+import fontSizeManager from '../utils/FontSizeManager'; // 导入字体管理器
+
 const Stack = createStackNavigator();
 
 const App = () => {
   SystemNavigationBar.fullScreen(true); // 隐藏系统导航栏
 
   useEffect(() => {
+    // 初始化字体管理器
+    fontSizeManager.loadFontSize();
+    
     const backAction = () => {
       // Alert.alert("返回功能已禁用", "请使用其他方式导航");
       return true; // 阻止返回键的默认行为

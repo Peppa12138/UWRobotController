@@ -1,15 +1,18 @@
 import React from 'react';
 import {View, Text, StyleSheet, Dimensions} from 'react-native';
+import { useFontSize } from '../../utils/useFontSize';
 
 const {width, height} = Dimensions.get('window');
 
 const VideoStats = ({progress, frameRate}) => {
+  const fontSize = useFontSize();
+  
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>
+      <Text style={[styles.text, {fontSize}]}>
         Progress: {progress.toFixed(0)}s
       </Text>
-      <Text style={styles.text}>
+      <Text style={[styles.text, {fontSize}]}>
         Frame Rate: {frameRate !== null ? frameRate.toFixed(2) + ' fps' : 'Calculating...'}
       </Text>
     </View>
@@ -27,9 +30,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   text: {
-    fontSize: 16,
     color: 'white',
     marginBottom: 5,
+    // fontSize 现在由组件动态设置
   },
 });
 
