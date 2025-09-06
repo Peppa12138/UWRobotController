@@ -4,17 +4,22 @@ import { TouchableOpacity, View, StyleSheet, Image, Dimensions } from 'react-nat
 const { width, height } = Dimensions.get('window'); // 获取屏幕宽度和高度
 
 const DirectionPad = ({ onPress }) => {
+  const handlePressIn = (direction) => {
+    // 按下时的视觉反馈处理（如需要可以添加动画）
+    onPress(direction);
+  };
+
   return (
     <View style={styles.directionPad}>
       {/* 上按钮 */}
       <View style={styles.upButtonContainer}>
         <TouchableOpacity
-          style={[styles.button, styles.upButton]}
-          onPress={() => onPress('up')}
+          onPress={() => handlePressIn('up')}
+          activeOpacity={0.7} // 添加按下透明度反馈
         >
           <Image
             source={require('../public/Images/up.png')}
-            style={styles.buttonImage}
+            style={styles.upButtonImage}
           />
         </TouchableOpacity>
       </View>
@@ -22,12 +27,12 @@ const DirectionPad = ({ onPress }) => {
       {/* 下按钮 */}
       <View style={styles.downButtonContainer}>
         <TouchableOpacity
-          style={[styles.button, styles.downButton]}
-          onPress={() => onPress('down')}
+          onPress={() => handlePressIn('down')}
+          activeOpacity={0.7} // 添加按下透明度反馈
         >
           <Image
             source={require('../public/Images/down.png')}
-            style={styles.buttonImage}
+            style={styles.downButtonImage}
           />
         </TouchableOpacity>
       </View>
@@ -40,31 +45,25 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative', // 设置为相对定位，以便子元素可以使用绝对定位
   },
-  button: {
-    width: width * 0.07, // 使用屏幕宽度的 7% 作为按钮宽度
-    height: width * 0.07, // 使用屏幕宽度的 7% 作为按钮高度
-    borderRadius: width * 0.035, // 按钮为圆形，半径为宽度的一半
-    backgroundColor: '#f5f5f5', // 按钮背景色
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2, // 添加外边框宽度
-    borderColor: '#000', // 外边框颜色
-    borderStyle: 'solid', // 外边框样式（实线）
+  upButtonImage: {
+    width: width * 0.06, // 上按钮图片尺寸
+    height: width * 0.06, // 保持比例
+    resizeMode: 'contain', // 保持图片完整显示
   },
-  buttonImage: {
-    width: width * 0.05, // 使用屏幕宽度的 5% 作为图片宽度
-    height: width * 0.05, // 使用屏幕宽度的 5% 作为图片高度
-    resizeMode: 'contain', // 保持图片比例
+  downButtonImage: {
+    width: width * 0.06, // 下按钮图片尺寸
+    height: width * 0.06, // 保持比例
+    resizeMode: 'contain', // 保持图片完整显示
   },
   upButtonContainer: {
     position: 'absolute', // 使用绝对定位
-    top: height * 0.55, //
-    left: width * 0.75, // 
+    top: height * 0.55, // 上按钮位置
+    left: width * 0.74, // 统一的水平位置
   },
   downButtonContainer: {
     position: 'absolute', // 使用绝对定位
-    top: height * 0.72, // 距离顶部 50% 的高度
-    right: width * 0.18, // 距离右侧 30% 的宽度
+    top: height * 0.76, // 下按钮位置，与上按钮保持适当间距
+    left: width * 0.74, // 与上按钮对齐，使用相同的left值
   },
 });
 

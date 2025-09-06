@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   },
   skillButtonRight: {
     position: 'absolute',
-    bottom: height * 0.05, // 使用屏幕高度的百分比来调整位置
+    bottom: height * 0.03, // 使用屏幕高度的百分比来调整位置
     right: -width * 0.07, // 使用屏幕宽度的百分比来调整位置
   },
   buttonText: {
