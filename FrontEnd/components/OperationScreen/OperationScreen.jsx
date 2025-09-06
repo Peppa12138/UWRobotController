@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {
   View,
+  Text,
   StyleSheet,
   TouchableOpacity,
   Image,
@@ -17,6 +18,8 @@ import axios from 'axios';
 
 // 导入字体管理器Hook
 import { useFontSize } from '../../utils/useFontSize';
+// 导入显示设置Hook
+import { useDisplaySettings } from '../../utils/useDisplaySettings';
 
 // 导入 VideoStreamViewer (WebView版本 - 避免频闪)
 import VideoStreamViewer from '../VideoStreamViewer/VideoStreamViewer';
@@ -35,6 +38,11 @@ const ControlPanel = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const fontSize = useFontSize(); // 使用自定义Hook
+  const displaySettings = useDisplaySettings(); // 使用显示设置Hook
+  
+  // 调试日志
+  console.log('当前显示设置:', displaySettings);
+  
   const [controlMode, setControlMode] = useState(
     route.params?.controlMode || 1,
   );
@@ -113,8 +121,16 @@ const ControlPanel = () => {
   };
 
   const handleReturnButtonPress = () => {
-    setIsPaused(true);
-    navigation.navigate('AfterLogin');
+    console.log('退出按钮被点击'); // 添加调试日志
+    try {
+      setIsPaused(true);
+      console.log('尝试导航到 AfterLogin');
+      navigation.navigate('AfterLogin');
+    } catch (error) {
+      console.error('导航失败:', error);
+      // 尝试使用 goBack 作为备选方案
+      navigation.goBack();
+    }
   };
 
   // // 新增：处理视频进度更新
@@ -169,7 +185,7 @@ const ControlPanel = () => {
         />
         <View style={styles.content}>
           <View style={styles.leftPanel}>
-            {controlMode === 1 && (
+            {displaySettings.virtualJoystick && controlMode === 1 && (
               <VirtualJoystick
                 // onMove={data => console.log(data)}
                 onTouchStart={handleTouchStart}
@@ -183,20 +199,31 @@ const ControlPanel = () => {
           </View>
           <DirectionPad onPress={handleDirectionPress} />
           <ReturnButton onPress={handleReturnButtonPress} />
-          <View style={styles.statusViewContainer}>
-            <StatusView fontSize={fontSize} statusData={statusData} />
-          </View>
+          {displaySettings.statusView && (
+            <View style={styles.statusViewContainer}>
+              <StatusView fontSize={fontSize} statusData={statusData} />
+            </View>
+          )}
         </View>
 
-        <NetworkStatus />
-        {/* 将视频数据传递给 VideoStats 组件 */}
-        {/* <VideoStats progress={videoProgress} frameRate={videoFrameRate} /> */}
-        {/* 传递视频流数据给 VideoStats 组件 */}
-        <VideoStats
-          progress={streamProgress}
-          frameRate={streamFrameRate}
-          isLive={isStreamConnected}
-        />
+        {displaySettings.networkStatus && <NetworkStatus />}
+        {displaySettings.videoStats && (
+          <VideoStats
+            progress={streamProgress}
+            frameRate={streamFrameRate}
+            isLive={isStreamConnected}
+          />
+        )}
+
+        {/* 显示设置状态指示器 - 用于调试 */}
+        <View style={styles.debugIndicator}>
+          <Text style={styles.debugText}>
+            摇杆: {displaySettings.virtualJoystick ? '✓' : '✗'} | 
+            状态: {displaySettings.statusView ? '✓' : '✗'} | 
+            网络: {displaySettings.networkStatus ? '✓' : '✗'} | 
+            视频: {displaySettings.videoStats ? '✓' : '✗'}
+          </Text>
+        </View>
 
         {/* 添加流连接状态指示器 */}
         {/* <View style={styles.streamStatus}>
@@ -272,6 +299,25 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 2,
     borderColor: '#ffffff',
+  },
+  // 调试指示器样式
+  debugIndicator: {
+    position: 'absolute',
+    top: height * 0.02, // 顶部位置保持不变
+    left: 0,
+    right: 0,
+    alignItems: 'center', // 水平居中
+    zIndex: 20,
+  },
+  debugText: {
+    color: 'white',
+    fontSize: 12,
+    fontFamily: 'monospace',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    textAlign: 'center',
   },
 });
 

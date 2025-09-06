@@ -12,6 +12,7 @@ import AfterLoginScreen from '../components/AfterLogin/AfterLogin';
 // import UserInformation from '../components/UserInformation/UserInformation';
 // import ChangePassword from '../components/ChangePassword/ChangePassword';
 import fontSizeManager from '../utils/FontSizeManager'; // 导入字体管理器
+import displaySettingsManager from '../utils/DisplaySettingsManager'; // 导入显示设置管理器
 
 const Stack = createStackNavigator();
 
@@ -22,9 +23,12 @@ const App = () => {
     // 初始化字体管理器
     fontSizeManager.loadFontSize();
     
+    // 初始化显示设置管理器
+    displaySettingsManager.loadDisplaySettings();
+    
     const backAction = () => {
       // Alert.alert("返回功能已禁用", "请使用其他方式导航");
-      return true; // 阻止返回键的默认行为
+      return true; // 仅阻止物理返回键，不影响程序内的导航
     };
 
     // 添加返回键事件监听器
