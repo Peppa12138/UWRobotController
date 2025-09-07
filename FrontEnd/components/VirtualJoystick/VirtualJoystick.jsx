@@ -1,10 +1,10 @@
 import React, {useRef} from 'react';
-import {View, PanResponder, StyleSheet, Text, Animated} from 'react-native';
+import {View, PanResponder, StyleSheet, Text, Animated, Image} from 'react-native';
 
 const VirtualJoystick = ({onMove}) => {
-  const joystickRadius = 50; // 摇杆背景半径
-  const minStickRadius = 10; // 摇杆按钮最小半径
-  const maxStickRadius = 20; // 摇杆按钮最大半径
+  const joystickRadius = 70; // 增大摇杆背景半径
+  const minStickRadius = 12; // 稍微增大摇杆按钮最小半径
+  const maxStickRadius = 25; // 稍微增大摇杆按钮最大半径
   const maxDistance = joystickRadius - minStickRadius; // 最大偏移范围
   const activationDistance = joystickRadius * 3; // 手指离摇杆的最大有效距离
 
@@ -93,6 +93,74 @@ const VirtualJoystick = ({onMove}) => {
         ]}
         {...panResponder.panHandlers}
         ref={joystickRef}>
+        
+        {/* 添加同心圆装饰 */}
+        <View style={[
+          styles.innerCircle, 
+          {
+            width: joystickRadius * 1.4, 
+            height: joystickRadius * 1.4,
+            borderRadius: joystickRadius * 0.7,
+          }
+        ]} />
+        <View style={[
+          styles.innerCircle2, 
+          {
+            width: joystickRadius * 0.8, 
+            height: joystickRadius * 0.8,
+            borderRadius: joystickRadius * 0.4,
+          }
+        ]} />
+
+        {/* 添加四个方向按钮 */}
+        {/* 上按钮 */}
+        <Image
+          source={require('../public/Images/virtual-up.png')}
+          style={[
+            styles.directionButton,
+            {
+              top: 8, // 距离顶部8px
+              left: joystickRadius - 17, // 水平居中 (半径-按钮宽度的一半)
+            }
+          ]}
+        />
+        
+        {/* 下按钮 */}
+        <Image
+          source={require('../public/Images/virtual-down.png')}
+          style={[
+            styles.directionButton,
+            {
+              bottom: 8, // 距离底部8px
+              left: joystickRadius - 17, // 与上按钮水平对齐
+            }
+          ]}
+        />
+        
+        {/* 左按钮 */}
+        <Image
+          source={require('../public/Images/virtual-left.png')}
+          style={[
+            styles.directionButton,
+            {
+              top: joystickRadius - 14, // 垂直居中 (半径-按钮高度的一半)
+              left: 8, // 距离左边8px
+            }
+          ]}
+        />
+        
+        {/* 右按钮 */}
+        <Image
+          source={require('../public/Images/virtual-right.png')}
+          style={[
+            styles.directionButton,
+            {
+              top: joystickRadius - 14, // 与左按钮垂直对齐
+              right: 8, // 距离右边8px
+            }
+          ]}
+        />
+
         {/* 摇杆控制按钮 */}
         <Animated.View
           style={[
@@ -116,7 +184,28 @@ const VirtualJoystick = ({onMove}) => {
               ],
             },
           ]}
-        />
+        >
+          {/* 添加内部高光效果 */}
+          <Animated.View
+            style={[
+              styles.stickInnerHighlight,
+              {
+                width: animatedRadius.interpolate({
+                  inputRange: [minStickRadius, maxStickRadius],
+                  outputRange: [minStickRadius * 1.2, maxStickRadius * 1.2],
+                }),
+                height: animatedRadius.interpolate({
+                  inputRange: [minStickRadius, maxStickRadius],
+                  outputRange: [minStickRadius * 1.2, maxStickRadius * 1.2],
+                }),
+                borderRadius: animatedRadius.interpolate({
+                  inputRange: [minStickRadius, maxStickRadius],
+                  outputRange: [minStickRadius * 0.6, maxStickRadius * 0.6],
+                }),
+              },
+            ]}
+          />
+        </Animated.View>
       </View>
       {/* 可选的文本，显示方向
       <Text style={styles.directionText}>
@@ -132,20 +221,67 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    marginTop: -150, // Optional, make sure it's not off-screen
+    marginTop: -180, // 从-150改为-180，向上移动30像素
   },
   joystickBackground: {
     position: 'relative',
     borderRadius: 100,
-    backgroundColor: '#ddd', // 背景颜色
+    backgroundColor: 'rgba(255, 255, 255, 0.15)', // 半透明白色背景
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 0, // 边框
-    borderColor: '#333', // 边框颜色
+    borderWidth: 2, // 添加边框
+    borderColor: 'rgba(255, 255, 255, 0.3)', // 半透明白色边框
+    shadowColor: '#000', // 添加阴影效果
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8, // Android 阴影
+  },
+  innerCircle: {
+    position: 'absolute',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)', // 非常淡的圆环
+    backgroundColor: 'transparent',
+  },
+  innerCircle2: {
+    position: 'absolute',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)', // 更淡的圆环
+    backgroundColor: 'transparent',
+  },
+  directionButton: {
+    position: 'absolute',
+    width: 28, // 从20增加到28，调大图片尺寸
+    height: 28, // 从20增加到28
+    resizeMode: 'contain',
+    opacity: 0.7, // 半透明效果，不会过于突出
+    zIndex: 1, // 确保在装饰圆环之上
   },
   stick: {
     position: 'absolute',
-    backgroundColor: '#008CBA', // 摇杆按钮的颜色
+    backgroundColor: '#4A90E2', // 更现代的蓝色
+    borderRadius: 20, // 保证是圆形
+    borderWidth: 2, // 摇杆按钮边框
+    borderColor: 'rgba(255, 255, 255, 0.8)', // 白色边框
+    shadowColor: '#000', // 摇杆按钮阴影
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.4,
+    shadowRadius: 3,
+    elevation: 6, // Android 阴影
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stickInnerHighlight: {
+    position: 'absolute',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)', // 半透明白色高光
+    top: '20%', // 位置偏上，模拟光源效果
+    left: '20%',
   },
   directionText: {
     marginTop: 40,
