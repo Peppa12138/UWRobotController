@@ -1,7 +1,11 @@
-import React, {useRef} from 'react';
-import {View, PanResponder, StyleSheet, Text, Animated, Image} from 'react-native';
+import React, {useRef, useEffect} from 'react';
+import {View, PanResponder, StyleSheet, Text, Animated, Image, DeviceEventEmitter} from 'react-native';
 
-const VirtualJoystick = ({onMove}) => {
+const VirtualJoystick = ({
+  onMove, 
+  gamepadPosition = {x: 0, y: 0}, 
+  gamepadEnabled = false
+}) => {
   const joystickRadius = 70; // 增大摇杆背景半径
   const minStickRadius = 12; // 稍微增大摇杆按钮最小半径
   const maxStickRadius = 25; // 稍微增大摇杆按钮最大半径
@@ -11,6 +15,73 @@ const VirtualJoystick = ({onMove}) => {
   const animatedPosition = useRef(new Animated.ValueXY({x: 0, y: 0})).current; // 用于动画的位置
   const animatedRadius = useRef(new Animated.Value(minStickRadius)).current; // 用于动画的半径
   const joystickRef = useRef(null);
+
+  // 手柄同步：当手柄位置改变时，更新虚拟摇杆位置
+  useEffect(() => {
+    if (gamepadEnabled && gamepadPosition) {
+      const {x, y} = gamepadPosition;
+      
+      // 限制在摇杆范围内
+      const distance = Math.sqrt(x * x + y * y);
+      const maxRadius = joystickRadius - minStickRadius;
+      
+      if (distance > 0) {
+        const limitedX = distance > maxRadius ? (x / distance) * maxRadius : x;
+        const limitedY = distance > maxRadius ? (y / distance) * maxRadius : y;
+        
+        // 平滑更新位置
+        Animated.spring(animatedPosition, {
+          toValue: {x: limitedX, y: limitedY},
+          friction: 8,
+          tension: 100,
+          useNativeDriver: false,
+        }).start();
+        
+        // 更新半径
+        const newRadius = minStickRadius + (Math.min(distance, maxRadius) / maxRadius) * (maxStickRadius - minStickRadius);
+        Animated.spring(animatedRadius, {
+          toValue: newRadius,
+          friction: 8,
+          useNativeDriver: false,
+        }).start();
+        
+        // 调用回调
+        if (onMove) {
+          onMove({
+            x: limitedX / joystickRadius,
+            y: limitedY / joystickRadius,
+            distance: Math.min(distance, maxRadius) / maxRadius,
+          });
+        }
+      } else {
+        // 回到中心
+        animateStickToCenter();
+        if (onMove) {
+          onMove({x: 0, y: 0, distance: 0});
+        }
+      }
+    }
+  }, [gamepadPosition, gamepadEnabled, joystickRadius, minStickRadius, maxStickRadius, onMove]);
+
+  // 监听手柄同步事件
+  useEffect(() => {
+    if (!gamepadEnabled) {
+      return;
+    }
+
+    const syncListener = DeviceEventEmitter.addListener('virtualJoystickSync', (event) => {
+      const { stick, data, source } = event;
+      
+      if (stick === 'left' && source === 'gamesir_x2s') {
+        // 手柄数据已经在gamepadPosition中处理了
+        console.log('VirtualJoystick: 接收到手柄同步数据');
+      }
+    });
+
+    return () => {
+      syncListener.remove();
+    };
+  }, [gamepadEnabled]);
 
   // 平滑返回中心位置的动画
   const animateStickToCenter = () => {
@@ -30,9 +101,14 @@ const VirtualJoystick = ({onMove}) => {
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponder: () => !gamepadEnabled, // 手柄模式时禁用触摸
+      onMoveShouldSetPanResponder: () => !gamepadEnabled,  // 手柄模式时禁用触摸
       onPanResponderMove: (e, gestureState) => {
+        // 如果手柄已启用，忽略触摸输入
+        if (gamepadEnabled) {
+          return;
+        }
+        
         // 获取摇杆背景的绝对位置
         joystickRef.current.measure((x, y, width, height, pageX, pageY) => {
           const offsetX = gestureState.moveX - pageX - joystickRadius;
@@ -74,6 +150,11 @@ const VirtualJoystick = ({onMove}) => {
         });
       },
       onPanResponderRelease: () => {
+        // 如果手柄已启用，忽略触摸输入
+        if (gamepadEnabled) {
+          return;
+        }
+        
         // 释放时平滑返回中心位置
         animateStickToCenter();
         if (onMove) {

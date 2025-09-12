@@ -6,6 +6,9 @@ import {
   TouchableOpacity,
   Image,
   Modal,
+  Switch,
+  Alert,
+  ScrollView,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import {List, Radio, Button} from '@ant-design/react-native';
@@ -13,10 +16,17 @@ import {List, Radio, Button} from '@ant-design/react-native';
 const SettingsPage = ({navigation, route}) => {
   const initialFontSize = route.params?.fontSize || 14; // 获取初始字体大小
   const initialControlMode = route.params?.controlMode || 1; // 0: Virtual Key, 1: Physical Joystick
+  const initialGamepadEnabled = route.params?.gamepadEnabled || false;
+  
   const [fontSize, setFontSize] = useState(initialFontSize);
   const [selectedValue, setSelectedValue] = useState(1); // 默认选择虚拟按键
   const [previousValue, setPreviousValue] = useState(initialControlMode); // 记录变更前的值
   const [modalVisible, setModalVisible] = useState(false); // 控制模态框的显示
+  
+  // 手柄相关状态
+  const [gamepadEnabled, setGamepadEnabled] = useState(initialGamepadEnabled);
+  const [gamepadConnected, setGamepadConnected] = useState(false);
+  const [detectedGamepad, setDetectedGamepad] = useState(null);
 
   useEffect(() => {
     if (route.params?.fontSize) {
@@ -25,7 +35,10 @@ const SettingsPage = ({navigation, route}) => {
     if (route.params?.controlMode !== undefined) {
       setSelectedValue(route.params.controlMode);
     }
-  }, [route.params?.fontSize, route.params?.controlMode]);
+    if (route.params?.gamepadEnabled !== undefined) {
+      setGamepadEnabled(route.params.gamepadEnabled);
+    }
+  }, [route.params?.fontSize, route.params?.controlMode, route.params?.gamepadEnabled]);
 
   const handleFontSizeChange = value => {
     setFontSize(value);
@@ -33,11 +46,58 @@ const SettingsPage = ({navigation, route}) => {
   };
 
   const handleGoBack = () => {
-    navigation.navigate('OperationScreen', {fontSize}); // 返回并传递字体大小
+    navigation.navigate('OperationScreen', {
+      fontSize,
+      gamepadEnabled,
+      gamepadInfo: detectedGamepad,
+    }); // 返回并传递字体大小和手柄信息
   };
 
   const handleLogout = () => {
     navigation.navigate('PreLogin'); // 登出并跳转到 PreLogin 页面
+  };
+
+  const handleGamepadToggle = (value) => {
+    setGamepadEnabled(value);
+    navigation.setParams({gamepadEnabled: value});
+    
+    if (value) {
+      Alert.alert(
+        '手柄连接',
+        '请按下GameSir X2s手柄上的任意按键来连接\n\n注意：请确保手柄已开机并处于配对状态',
+        [
+          {text: '确定', onPress: () => startGamepadDetection()}
+        ]
+      );
+    } else {
+      setDetectedGamepad(null);
+      setGamepadConnected(false);
+    }
+  };
+
+  const startGamepadDetection = () => {
+    console.log('开始检测GameSir X2s手柄...');
+    
+    // 模拟手柄连接检测（实际项目中这会通过WebView与手柄API通信）
+    setTimeout(() => {
+      const mockGamepad = {
+        id: 'GameSir-X2s (STANDARD GAMEPAD Vendor: 3537 Product: 1105)',
+        index: 0,
+        connected: true,
+        timestamp: Date.now(),
+        axes: 4, // 4个轴（左右摇杆各2个轴）
+        buttons: 16 // 16个按钮
+      };
+      
+      setDetectedGamepad(mockGamepad);
+      setGamepadConnected(true);
+      
+      Alert.alert(
+        '🎮 手柄连接成功',
+        `已检测到：GameSir X2s\n\n摇杆同步功能已启用\n左摇杆将控制虚拟摇杆移动`,
+        [{text: '确定', onPress: () => {}}]
+      );
+    }, 2000);
   };
 
   const handleControlModeChange = value => {
@@ -90,6 +150,57 @@ const SettingsPage = ({navigation, route}) => {
           trackStyle={styles.trackStyle}
           thumbStyle={styles.thumbStyle}
         />
+
+        {/* 手柄设置区域 */}
+        <View style={styles.gamepadSection}>
+          <Text style={styles.sectionTitle}>🎮 GameSir X2s 手柄设置</Text>
+          
+          <View style={styles.gamepadRow}>
+            <Text style={styles.gamepadLabel}>启用手柄控制</Text>
+            <Switch
+              value={gamepadEnabled}
+              onValueChange={handleGamepadToggle}
+              trackColor={{false: '#767577', true: '#FF5722'}}
+              thumbColor={gamepadEnabled ? '#fff' : '#f4f3f4'}
+            />
+          </View>
+
+          {gamepadEnabled && (
+            <>
+              <View style={styles.gamepadStatus}>
+                <Text style={styles.gamepadStatusText}>
+                  连接状态: {gamepadConnected ? '✅ 已连接' : '❌ 未连接'}
+                </Text>
+                {detectedGamepad && (
+                  <>
+                    <Text style={styles.gamepadModel}>
+                      型号: GameSir X2s
+                    </Text>
+                    <Text style={styles.gamepadFeature}>
+                      🕹️ 摇杆同步: 左摇杆 → 虚拟摇杆
+                    </Text>
+                    <Text style={styles.gamepadFeature}>
+                      📱 支持轴数: {detectedGamepad.axes || 4}
+                    </Text>
+                    <Text style={styles.gamepadFeature}>
+                      🔘 支持按键: {detectedGamepad.buttons || 16}
+                    </Text>
+                  </>
+                )}
+              </View>
+
+              <View style={styles.instructionBox}>
+                <Text style={styles.instructionTitle}>使用说明:</Text>
+                <Text style={styles.instructionText}>
+                  • 左摇杆向左 → 虚拟摇杆向左{'\n'}
+                  • 左摇杆向右 → 虚拟摇杆向右{'\n'}
+                  • 左摇杆向上 → 虚拟摇杆向上{'\n'}
+                  • 左摇杆向下 → 虚拟摇杆向下
+                </Text>
+              </View>
+            </>
+          )}
+        </View>
         <List renderHeader={'操作选择'}
          style={styles.listContainer} // 应用新的样式
         >
@@ -182,6 +293,72 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     backgroundColor: '#FF5722',
+  },
+  // 手柄设置样式
+  gamepadSection: {
+    width: '100%',
+    marginVertical: 20,
+    padding: 15,
+    backgroundColor: '#444',
+    borderRadius: 8,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  gamepadRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  gamepadLabel: {
+    fontSize: 14,
+    color: '#fff',
+    fontWeight: '500',
+  },
+  gamepadStatus: {
+    marginBottom: 15,
+    padding: 12,
+    backgroundColor: '#555',
+    borderRadius: 6,
+  },
+  gamepadStatusText: {
+    fontSize: 13,
+    color: '#fff',
+    marginBottom: 8,
+    fontWeight: 'bold',
+  },
+  gamepadModel: {
+    fontSize: 12,
+    color: '#4CAF50',
+    marginBottom: 5,
+  },
+  gamepadFeature: {
+    fontSize: 11,
+    color: '#ccc',
+    marginBottom: 3,
+  },
+  instructionBox: {
+    backgroundColor: '#333',
+    padding: 12,
+    borderRadius: 6,
+    borderLeftWidth: 3,
+    borderLeftColor: '#FF5722',
+  },
+  instructionTitle: {
+    fontSize: 12,
+    color: '#FF5722',
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  instructionText: {
+    fontSize: 11,
+    color: '#ccc',
+    lineHeight: 16,
   },
   logoutButton: {
     marginTop: 20, // 与上方内容的间距

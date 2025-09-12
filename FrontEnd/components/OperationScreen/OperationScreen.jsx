@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  DeviceEventEmitter,
 } from 'react-native';
 //  移除 Video 导入
 // import Video from 'react-native-video';
@@ -32,6 +33,10 @@ import NetworkStatus from '../Operations/NetworkStatus';
 import VideoStats from '../Operations/VideoStats';
 import DirectionPad from '../Operations/DirectionPad';
 
+// 导入手柄同步组件
+import VirtualJoystickSync from '../VirtualJoystick/VirtualJoystickSync';
+import { useGameSirX2s } from '../GamepadManager/GamepadManager';
+
 const {width, height} = Dimensions.get('window');
 
 const ControlPanel = () => {
@@ -50,6 +55,15 @@ const ControlPanel = () => {
   const [activeTouchId, setActiveTouchId] = useState(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+
+  // 手柄相关状态
+  const [gamepadEnabled, setGamepadEnabled] = useState(route.params?.gamepadEnabled || false);
+  const [joystickPosition, setJoystickPosition] = useState({x: 0, y: 0});
+  const [streamConnected, setStreamConnected] = useState(false);
+  const [streamStats, setStreamStats] = useState(null);
+  
+  // 使用GameSir X2s Hook
+  const { connected: gamepadConnected, gamepadInfo } = useGameSirX2s();
 
   // // 新增用于视频播放数据的 state
   // const [videoProgress, setVideoProgress] = useState(0);
@@ -82,8 +96,64 @@ const ControlPanel = () => {
       if (route.params?.controlMode !== undefined) {
         setControlMode(route.params.controlMode);
       }
-    }, [route.params?.fontSize, route.params?.controlMode]),
+      if (route.params?.gamepadEnabled !== undefined) {
+        setGamepadEnabled(route.params.gamepadEnabled);
+      }
+    }, [route.params?.fontSize, route.params?.controlMode, route.params?.gamepadEnabled]),
   );
+
+  // 手柄事件监听
+  useEffect(() => {
+    if (!gamepadEnabled) {
+      return;
+    }
+
+    console.log('OperationScreen: 启用手柄监听');
+
+    // 监听虚拟摇杆同步事件
+    const joystickSyncListener = DeviceEventEmitter.addListener('virtualJoystickSync', (event) => {
+      const { stick, data, source } = event;
+      
+      if (stick === 'left' && source === 'gamesir_x2s') {
+        // 更新虚拟摇杆位置显示
+        setJoystickPosition({
+          x: data.x,
+          y: data.y
+        });
+        
+        console.log(`手柄左摇杆同步: (${data.x.toFixed(1)}, ${data.y.toFixed(1)})`);
+      }
+    });
+
+    // 监听手柄按钮事件
+    const buttonListener = DeviceEventEmitter.addListener('gamepadButton', (event) => {
+      const { button, pressed, source } = event;
+      
+      if (source === 'gamesir_x2s' && pressed) {
+        console.log(`GameSir按钮 ${button} 按下`);
+        
+        // 这里可以添加按钮功能映射
+        switch (button) {
+          case 'A':
+            // A键功能
+            break;
+          case 'B':
+            // B键功能
+            break;
+          case 'Start':
+            // Start键打开设置
+            navigation.navigate('HomeSetting');
+            break;
+        }
+      }
+    });
+
+    return () => {
+      joystickSyncListener.remove();
+      buttonListener.remove();
+      console.log('OperationScreen: 手柄监听器已移除');
+    };
+  }, [gamepadEnabled, navigation]);
 
   const handleDirectionPress = direction => {
     console.log(`Pressed ${direction} button`);
@@ -118,6 +188,21 @@ const ControlPanel = () => {
 
   const toggleMute = () => {
     setIsMuted(prevState => !prevState);
+  };
+
+  // 处理手柄摇杆变化
+  const handleGamepadLeftStick = (data) => {
+    console.log('手柄左摇杆数据:', data);
+    // 这里可以将手柄数据传递给VirtualJoystick组件
+    setJoystickPosition({
+      x: data.x,
+      y: data.y
+    });
+  };
+
+  const handleGamepadRightStick = (data) => {
+    console.log('手柄右摇杆数据:', data);
+    // 可用于其他控制，比如视角控制
   };
 
   const handleReturnButtonPress = () => {
@@ -191,6 +276,9 @@ const ControlPanel = () => {
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
+                // 添加手柄同步位置属性
+                gamepadPosition={joystickPosition}
+                gamepadEnabled={gamepadEnabled}
               />
             )}
           </View>
@@ -202,6 +290,36 @@ const ControlPanel = () => {
           {displaySettings.statusView && (
             <View style={styles.statusViewContainer}>
               <StatusView fontSize={fontSize} statusData={statusData} />
+            </View>
+          )}
+          
+          {/* 手柄同步组件 */}
+          <VirtualJoystickSync
+            gamepadEnabled={gamepadEnabled}
+            onLeftStickChange={handleGamepadLeftStick}
+            onRightStickChange={handleGamepadRightStick}
+            maxRadius={70} // 与VirtualJoystick的半径匹配
+          />
+          
+          {/* 手柄状态指示器 */}
+          {gamepadEnabled && (
+            <View style={styles.gamepadStatus}>
+              <View style={styles.gamepadIndicator}>
+                <View 
+                  style={[
+                    styles.statusDot, 
+                    {backgroundColor: gamepadConnected ? '#00ff00' : '#ff6600'}
+                  ]} 
+                />
+                <Text style={styles.gamepadStatusText}>
+                  🎮 {gamepadConnected ? 'GameSir X2s 已连接' : '等待连接...'}
+                </Text>
+              </View>
+              {gamepadConnected && (
+                <Text style={styles.gamepadDetails}>
+                  摇杆同步: 左({joystickPosition.x.toFixed(1)}, {joystickPosition.y.toFixed(1)})
+                </Text>
+              )}
             </View>
           )}
         </View>
@@ -318,6 +436,39 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 15,
     textAlign: 'center',
+  },
+  // 手柄状态指示器样式
+  gamepadStatus: {
+    position: 'absolute',
+    top: height * 0.08,
+    left: width * 0.02,
+    zIndex: 25,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    minWidth: 180,
+  },
+  gamepadIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  gamepadStatusText: {
+    color: 'white',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  gamepadDetails: {
+    color: '#ccc',
+    fontSize: 9,
+    fontFamily: 'monospace',
   },
 });
 
